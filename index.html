@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Petualangan Energi Terbarukan - Sahabat Bumi Cilik</title>
+  <title>Kedai Pecahan Chef Kiko - Matematika Kelas 3 SD</title>
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <!-- Google Fonts: Fredoka & Quicksand -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
   <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     body {
@@ -22,57 +23,55 @@
     h1, h2, h3, h4, h5, .font-heading {
       font-family: 'Fredoka', cursive, sans-serif;
     }
-    
-    /* Animasi Terapung & Goyang Khas Anak */
-    @keyframes floating {
+
+    @keyframes bobbing {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-7px) rotate(2deg); }
+      50% { transform: translateY(-7px) rotate(1.5deg); }
     }
-    .animate-float {
-      animation: floating 3.2s ease-in-out infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7)); }
-      50% { filter: drop-shadow(0 0 20px rgba(251, 191, 36, 1)); }
-    }
-    .animate-glow {
-      animation: pulseGlow 2s infinite ease-in-out;
+    .animate-bob {
+      animation: bobbing 3s ease-in-out infinite;
     }
 
-    /* Putaran Turbin Angin Sesuai Kecepatan */
-    @keyframes spinTurbine {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    /* Slice Pizza Interactive Animations */
+    .slice-interactive {
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+      transform-origin: 110px 110px;
     }
-    .turbine-blade {
-      transform-origin: center center;
-    }
-
-    /* Custom range sliders styling */
-    input[type=range] {
-      accent-color: #10b981;
+    .slice-interactive:hover {
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)) brightness(1.08);
+      transform: scale(1.035);
     }
 
-    /* Custom scrollbar */
+    /* Batang Cokelat */
+    .choco-slot {
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .choco-slot:hover {
+      transform: translateY(-4px) scale(1.03);
+    }
+
     ::-webkit-scrollbar {
       height: 8px;
       width: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: #ecfdf5;
+      background: #fef3c7;
     }
     ::-webkit-scrollbar-thumb {
-      background: #34d399;
+      background: #f59e0b;
       border-radius: 999px;
     }
   </style>
 </head>
-<body class="bg-gradient-to-b from-emerald-50 via-teal-50 to-amber-50 min-h-screen text-slate-800 selection:bg-amber-300 w-full overflow-x-hidden">
+<body class="bg-gradient-to-b from-amber-50 via-orange-50 to-rose-50 min-h-screen text-slate-800 selection:bg-amber-300 w-full overflow-x-hidden">
 
-  <!-- SOUND SYSTEM (Web Audio API Synthesizer - 100% Tanpa URL Audio Luar) -->
+  <!-- SOUND SYSTEM (Web Audio API Synthesizer) -->
   <script>
     let audioCtx = null;
+    let soundEnabled = true;
+
     function getAudioCtx() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -83,131 +82,176 @@
       return audioCtx;
     }
 
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('sound-toggle-btn');
+      if (soundEnabled) {
+        btn.innerHTML = `🔊 <span class="text-xs font-bold text-emerald-800">Suara: ON</span>`;
+        playSound('pop');
+      } else {
+        btn.innerHTML = `🔇 <span class="text-xs font-bold text-slate-500">Suara: OFF</span>`;
+      }
+    }
+
     function playSound(type) {
+      if (!soundEnabled) return;
       try {
         const ctx = getAudioCtx();
         const now = ctx.currentTime;
 
-        if (type === 'click') {
+        if (type === 'crunch' || type === 'eat') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.exponentialRampToValueAtTime(110, now + 0.14);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+
+          const noiseOsc = ctx.createOscillator();
+          const noiseGain = ctx.createGain();
+          noiseOsc.type = 'triangle';
+          noiseOsc.frequency.setValueAtTime(700, now);
+          noiseOsc.frequency.linearRampToValueAtTime(200, now + 0.1);
+          noiseGain.gain.setValueAtTime(0.2, now);
+          noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
+          noiseOsc.connect(noiseGain);
+          noiseGain.connect(ctx.destination);
+          noiseOsc.start(now);
+          noiseOsc.stop(now + 0.12);
+
+        } else if (type === 'restore' || type === 'slice') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(650, now);
+          osc.frequency.exponentialRampToValueAtTime(1040, now + 0.12);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+
+        } else if (type === 'pop' || type === 'click') {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(520, now);
           osc.frequency.exponentialRampToValueAtTime(780, now + 0.07);
-          gain.gain.setValueAtTime(0.18, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.08);
-        } else if (type === 'spark') {
-          // Bunyi percikan listrik lucu (Zzzzt!)
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(800, now);
-          osc.frequency.setValueAtTime(1200, now + 0.05);
-          osc.frequency.setValueAtTime(600, now + 0.1);
-          gain.gain.setValueAtTime(0.15, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.2);
-        } else if (type === 'wind') {
-          // Desau angin lembut
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(260, now);
-          osc.frequency.exponentialRampToValueAtTime(420, now + 0.25);
           gain.gain.setValueAtTime(0.2, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.32);
-        } else if (type === 'success') {
-          // Fanfare kemenangan (C - E - G - C')
-          const freqs = [523.25, 659.25, 783.99, 1046.50];
-          freqs.forEach((f, idx) => {
+          osc.stop(now + 0.09);
+
+        } else if (type === 'bell' || type === 'order') {
+          [880, 1320].forEach((f, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + (i * 0.06));
+            gain.gain.setValueAtTime(0.22, now + (i * 0.06));
+            gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.06) + 0.4);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + (i * 0.06));
+            osc.stop(now + (i * 0.06) + 0.42);
+          });
+
+        } else if (type === 'cheer' || type === 'success') {
+          [523.25, 659.25, 783.99, 1046.50].forEach((f, idx) => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(f, now + idx * 0.09);
-            gain.gain.setValueAtTime(0.2, now + idx * 0.09);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.28);
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.25, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.28);
             osc.connect(gain);
             gain.connect(ctx.destination);
-            osc.start(now + idx * 0.09);
-            osc.stop(now + idx * 0.09 + 0.3);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
           });
+
         } else if (type === 'wrong') {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(220, now);
-          osc.frequency.exponentialRampToValueAtTime(140, now + 0.22);
-          gain.gain.setValueAtTime(0.16, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(260, now);
+          osc.frequency.exponentialRampToValueAtTime(130, now + 0.2);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.23);
+          osc.stop(now + 0.22);
         }
-      } catch (err) {
-        console.warn('Audio belum siap:', err);
+      } catch (e) {
+        console.warn('Audio belum siap:', e);
       }
     }
   </script>
 
-  <!-- FULL-WIDTH STICKY NAVBAR -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-4 border-emerald-300 shadow-sm w-full">
+  <!-- TOP NAVBAR -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-4 border-amber-300 shadow-sm w-full">
     <div class="w-full px-4 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
       
-      <!-- Brand & Mascot Logo -->
-      <div class="flex items-center gap-3 cursor-pointer" onclick="switchMainTab('materi'); playSound('click');">
-        <div class="w-12 h-12 bg-gradient-to-tr from-amber-400 to-yellow-300 rounded-2xl flex items-center justify-center shadow-md shadow-amber-200 border-2 border-white animate-float text-2xl">
-          ⚡
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchNavTab('akademi'); playSound('pop');">
+        <div class="w-12 h-12 bg-gradient-to-tr from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-md border-2 border-white animate-bob text-2xl">
+          🐻🍕
         </div>
         <div>
-          <span class="inline-block px-2.5 py-0.5 text-[11px] font-black bg-emerald-100 text-emerald-800 rounded-full tracking-wider uppercase">
-            IPAS KELAS 4, 5 & 6 SD
+          <span class="inline-block px-2.5 py-0.5 text-[10px] font-black bg-amber-100 text-amber-900 rounded-full tracking-wider uppercase">
+            MATEMATIKA KELAS 3 SD • PECAHAN SEDERHANA
           </span>
-          <h1 class="text-xl sm:text-2xl font-bold text-emerald-950 font-heading leading-tight flex items-center gap-1.5">
-            Misi Energi Terbarukan
-            <span class="text-amber-500">🌱</span>
+          <h1 class="text-xl sm:text-2xl font-bold text-amber-950 font-heading leading-tight flex items-center gap-1.5">
+            Kedai Pecahan Chef Kiko
+            <span class="text-rose-500 text-lg">✨</span>
           </h1>
         </div>
       </div>
 
-      <!-- Navigation Tabs Button (Full Responsive) -->
-      <nav class="flex items-center gap-1.5 sm:gap-2 bg-emerald-100/70 p-1.5 rounded-2xl border border-emerald-200 text-xs sm:text-sm font-bold overflow-x-auto max-w-full">
-        <button id="nav-materi" onclick="switchMainTab('materi')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 bg-white text-emerald-800 shadow-sm">
-          <i data-lucide="book-open" class="w-4 h-4 text-emerald-600"></i>
-          <span>Materi Eksplorasi</span>
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1.5 sm:gap-2 bg-amber-100/70 p-1.5 rounded-2xl border border-amber-200 text-xs sm:text-sm font-bold overflow-x-auto max-w-full">
+        <button id="nav-btn-akademi" onclick="switchNavTab('akademi')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 bg-white text-amber-900 shadow-sm">
+          <span>📖 0. Akademi Konsep</span>
         </button>
-        <button id="nav-simulator" onclick="switchMainTab('simulator')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 text-slate-600 hover:text-emerald-800 hover:bg-white/60">
-          <i data-lucide="cpu" class="w-4 h-4 text-amber-500"></i>
-          <span>Kota Hijau Sandbox</span>
+        <button id="nav-btn-pizza" onclick="switchNavTab('pizza')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 text-slate-600 hover:text-amber-900 hover:bg-white/60">
+          <span>🍕 1. Meja Potong Pizza</span>
         </button>
-        <button id="nav-games" onclick="switchMainTab('games')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 text-slate-600 hover:text-emerald-800 hover:bg-white/60">
-          <i data-lucide="gamepad-2" class="w-4 h-4 text-indigo-500"></i>
-          <span>Misi Game</span>
+        <button id="nav-btn-choco" onclick="switchNavTab('choco')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 text-slate-600 hover:text-amber-900 hover:bg-white/60">
+          <span>🍫 2. Pabrik Cokelat</span>
         </button>
-        <button id="nav-proyek" onclick="switchMainTab('proyek')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 text-slate-600 hover:text-emerald-800 hover:bg-white/60">
-          <i data-lucide="wrench" class="w-4 h-4 text-teal-600"></i>
-          <span>Lab Kincir Angin</span>
+        <button id="nav-btn-senilai" onclick="switchNavTab('senilai')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 text-slate-600 hover:text-amber-900 hover:bg-white/60">
+          <span>⚖️ 3. Pecahan Senilai</span>
+        </button>
+        <button id="nav-btn-games" onclick="switchNavTab('games')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 text-slate-600 hover:text-amber-900 hover:bg-white/60">
+          <span>🎮 4. Game Kasir Kedai</span>
+        </button>
+        <button id="nav-btn-quiz" onclick="switchNavTab('quiz')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 text-slate-600 hover:text-amber-900 hover:bg-white/60">
+          <span>🎖️ 5. Kuis Lisensi Koki</span>
+        </button>
+        <button id="nav-btn-proyek" onclick="switchNavTab('proyek')" class="tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 text-slate-600 hover:text-amber-900 hover:bg-white/60">
+          <span>📄 6. DIY Piring & LKS</span>
         </button>
       </nav>
 
-      <!-- Skor / Koleksi Eco-Poin -->
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2 bg-amber-50 px-3.5 py-1.5 rounded-2xl border-2 border-amber-300 shadow-sm">
-          <span class="text-2xl animate-bounce">⚡</span>
+      <!-- Sound Toggle & XP Bintang -->
+      <div class="flex items-center gap-2.5">
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="px-3 py-1.5 bg-white border-2 border-emerald-300 rounded-xl flex items-center gap-1.5 shadow-xs hover:bg-emerald-50 transition">
+          🔊 <span class="text-xs font-bold text-emerald-800">Suara: ON</span>
+        </button>
+
+        <div class="flex items-center gap-2 bg-gradient-to-r from-amber-100 to-orange-100 px-3.5 py-1.5 rounded-2xl border-2 border-amber-300 shadow-sm">
+          <span class="text-2xl animate-spin" style="animation-duration: 8s;">⭐</span>
           <div class="text-right leading-none">
-            <span class="text-[10px] font-black text-amber-800 uppercase block">Daya Eco-Watt</span>
-            <span id="player-score" class="font-heading text-lg font-black text-amber-600">0 W</span>
+            <span class="text-[9px] font-black text-amber-800 uppercase block">Bintang Koki</span>
+            <span id="player-xp" class="font-heading text-lg font-black text-amber-600">0 XP</span>
           </div>
         </div>
       </div>
@@ -215,377 +259,391 @@
     </div>
   </header>
 
-  <!-- KONTEN UTAMA FULL-WIDTH -->
+  <!-- KONTEN UTAMA FULL WIDTH -->
   <main class="w-full px-4 sm:px-8 py-6 space-y-8">
 
     <!-- ========================================================================= -->
-    <!-- SECTION 1: MATERI INTERAKTIF & PERBANDINGAN ENERGI -->
+    <!-- TAB 0: AKADEMI KOKI CILIK -->
     <!-- ========================================================================= -->
-    <section id="section-materi" class="space-y-8">
+    <section id="section-akademi" class="space-y-8">
       
-      <!-- HERO WELCOME BANNER (Gaya Guru Kak Boni & Maskot Volt) -->
-      <div class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-6">
-        
+      <!-- HERO BANNER AKADEMI -->
+      <div class="w-full bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="space-y-3 z-10 max-w-3xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold text-emerald-100">
-            <span>✨ Laboratorium Pintar IPAS SD</span>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold text-amber-100">
+            <span>🎓 Kelas Dasar Calon Koki Hebat</span>
           </div>
-          <h2 class="text-2xl sm:text-4xl font-heading font-black text-white leading-tight">
-            Selamat Datang di Dunia Energi Masa Depan! 🌏⚡
+          <h2 class="text-2xl sm:text-4xl font-heading font-black leading-tight">
+            Akademi Koki Cilik: Rahasia Memahami Pecahan! ✨
           </h2>
-          <p class="text-emerald-100 text-sm sm:text-base leading-relaxed">
-            Halo sahabat penjelajah! Bersama <b>Kak Boni</b> dan sahabat cilik kita <b>Volt si Kunang-kunang Energi</b>, kita akan membongkar rahasia bagaimana sinar matahari, hembusan angin, dan gemuruh air bisa menyalakan lampu rumah tanpa bikin bumi kita batuk dan panas!
-          </p>
-          <div class="flex flex-wrap gap-3 pt-2">
-            <button onclick="switchMainTab('simulator')" class="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-bold rounded-2xl shadow-md transition transform active:scale-95 flex items-center gap-2 text-sm">
-              <i data-lucide="play" class="w-4 h-4"></i> Mulai Mainkan Simulator Kota
-            </button>
-            <button onclick="switchMainTab('games')" class="px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white font-bold rounded-2xl backdrop-blur-md transition flex items-center gap-2 text-sm">
-              <i data-lucide="trophy" class="w-4 h-4"></i> Uji Tantangan Game
-            </button>
-          </div>
-        </div>
-
-        <!-- MASKOT VOLT INTERAKTIF -->
-        <div class="z-10 flex flex-col items-center">
-          <div onclick="pokeVolt()" class="cursor-pointer group relative transform transition hover:scale-110 active:scale-95" title="Klik Volt untuk mendengarkan energinya!">
-            <div class="w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-tr from-amber-300 to-yellow-200 rounded-full flex items-center justify-center text-6xl shadow-2xl border-4 border-white animate-float">
-              💡
-            </div>
-            <span class="absolute -top-1 -right-2 bg-emerald-500 text-white text-[11px] font-black px-2.5 py-1 rounded-full border-2 border-white shadow">
-              SENTUH AKU!
-            </span>
-          </div>
-          <p id="volt-bubble" class="mt-3 bg-white text-slate-800 text-xs sm:text-sm font-bold px-4 py-2 rounded-2xl shadow-md text-center max-w-[240px] border-2 border-amber-300">
-            "Bzzzt! Aku Volt! Aku suka energi bersih yang ramah lingkungan!"
+          <p class="text-amber-100 text-xs sm:text-sm leading-relaxed">
+            Sebelum memasak pizza, Chef Kiko mengajakmu memahami rahasia utama matematika pecahan. Klik kartu di bawah untuk mencoba laboratorium potong adil, mengenal anatomi pecahan, serta membelah makanan di kehidupan nyata!
           </p>
         </div>
 
-        <!-- Dekorasi Background -->
-        <div class="absolute -right-12 -bottom-16 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-      </div>
-
-      <!-- 4 SUMBER ENERGI TERBARUKAN UTAMA -->
-      <div class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="text-2xl font-heading font-black text-slate-800 flex items-center gap-2">
-              <i data-lucide="sparkles" class="w-6 h-6 text-amber-500"></i>
-              4 Pahlawan Energi Terbarukan
-            </h3>
-            <p class="text-sm text-slate-500 font-semibold">
-              Klik setiap kartu sumber energi di bawah untuk melihat cara kerjanya secara ajaib!
-            </p>
+        <div class="z-10 flex flex-col items-center flex-shrink-0">
+          <div onclick="playSound('cheer'); confetti({ particleCount: 40, spread: 50, origin: { y: 0.6 } }); addXP(5);" class="w-24 h-24 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center text-5xl shadow-2xl border-4 border-white/40 animate-bob cursor-pointer" title="Klik Chef Kiko!">
+            🧑‍🍳
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          
-          <!-- Card 1: Surya -->
-          <div onclick="showEnergyDetail('surya')" class="bg-white rounded-3xl p-5 border-3 border-amber-200 hover:border-amber-400 hover:shadow-xl transition-all cursor-pointer transform hover:-translate-y-1 group">
-            <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
-              ☀️
-            </div>
-            <span class="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full">
-              Sinar Abadi
-            </span>
-            <h4 class="text-lg font-heading font-bold text-slate-800 mt-2">Energi Surya (Matahari)</h4>
-            <p class="text-xs text-slate-500 mt-1 line-clamp-2">
-              Panel surya (Photovoltaic) menangkap cahaya matahari dan mengubahnya langsung menjadi arus listrik rumah.
-            </p>
-            <div class="mt-4 flex items-center justify-between text-xs font-bold text-amber-600">
-              <span>Pelajari Detail ➔</span>
-              <span class="text-lg">🔋</span>
-            </div>
-          </div>
-
-          <!-- Card 2: Angin -->
-          <div onclick="showEnergyDetail('angin')" class="bg-white rounded-3xl p-5 border-3 border-sky-200 hover:border-sky-400 hover:shadow-xl transition-all cursor-pointer transform hover:-translate-y-1 group">
-            <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
-              💨
-            </div>
-            <span class="text-[10px] font-black uppercase tracking-wider text-sky-700 bg-sky-100 px-2.5 py-0.5 rounded-full">
-              Hembusan Kencang
-            </span>
-            <h4 class="text-lg font-heading font-bold text-slate-800 mt-2">Energi Angin (Bayu)</h4>
-            <p class="text-xs text-slate-500 mt-1 line-clamp-2">
-              Baling-baling kincir raksasa ditiup angin untuk memutar generator penghasil listrik bersih bebas polusi.
-            </p>
-            <div class="mt-4 flex items-center justify-between text-xs font-bold text-sky-600">
-              <span>Pelajari Detail ➔</span>
-              <span class="text-lg">🌀</span>
-            </div>
-          </div>
-
-          <!-- Card 3: Air -->
-          <div onclick="showEnergyDetail('air')" class="bg-white rounded-3xl p-5 border-3 border-blue-200 hover:border-blue-400 hover:shadow-xl transition-all cursor-pointer transform hover:-translate-y-1 group">
-            <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
-              🌊
-            </div>
-            <span class="text-[10px] font-black uppercase tracking-wider text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">
-              Aliran Kuat
-            </span>
-            <h4 class="text-lg font-heading font-bold text-slate-800 mt-2">Energi Air (Hidro)</h4>
-            <p class="text-xs text-slate-500 mt-1 line-clamp-2">
-              Derasnya air waduk atau bendungan diarahkan untuk memutar turbin air seperti pada Pembangkit Listrik Tenaga Air (PLTA).
-            </p>
-            <div class="mt-4 flex items-center justify-between text-xs font-bold text-blue-600">
-              <span>Pelajari Detail ➔</span>
-              <span class="text-lg">💧</span>
-            </div>
-          </div>
-
-          <!-- Card 4: Panas Bumi & Biomassa -->
-          <div onclick="showEnergyDetail('biomassa')" class="bg-white rounded-3xl p-5 border-3 border-emerald-200 hover:border-emerald-400 hover:shadow-xl transition-all cursor-pointer transform hover:-translate-y-1 group">
-            <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition shadow-inner">
-              🌋
-            </div>
-            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
-              Dapur Alam & Nabati
-            </span>
-            <h4 class="text-lg font-heading font-bold text-slate-800 mt-2">Geotermal & Biomassa</h4>
-            <p class="text-xs text-slate-500 mt-1 line-clamp-2">
-              Uap panas dari perut bumi atau limbah organik (kotoran hewan, ampas tebu) diolah jadi gas bio ramah lingkungan.
-            </p>
-            <div class="mt-4 flex items-center justify-between text-xs font-bold text-emerald-600">
-              <span>Pelajari Detail ➔</span>
-              <span class="text-lg">🌿</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- INTERACTIVE COMPARISON SLIDER: FOSIL VS TERBARUKAN -->
-      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-emerald-100 space-y-6">
-        <div class="text-center max-w-2xl mx-auto space-y-2">
-          <span class="px-3 py-1 bg-teal-100 text-teal-800 text-xs font-extrabold rounded-full uppercase">
-            Eksperimen Pembanding Bumi
+          <span class="mt-2 text-xs font-black bg-amber-100 text-amber-950 px-3 py-1 rounded-full shadow-sm">
+            Chef Kiko Guru Besar
           </span>
-          <h3 class="text-2xl sm:text-3xl font-heading font-black text-slate-800">
-            Energi Fosil (Kotor) VS Energi Terbarukan (Bersih)
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-600">
-            Geser tuas pengatur di bawah untuk melihat perbedaan langsung kondisi udara, langit, dan bumi kita jika kita terus menggunakan batu bara vs beralih ke energi hijau!
-          </p>
         </div>
 
-        <!-- Kanvas Visual Simulasi Langit Kota -->
-        <div id="city-sky-box" class="relative w-full h-64 sm:h-80 rounded-3xl overflow-hidden border-4 border-slate-200 shadow-inner transition-colors duration-700 flex flex-col justify-between p-4 sm:p-6" style="background: linear-gradient(180deg, #38bdf8 0%, #bae6fd 60%, #bbf7d0 100%);">
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+      </div>
+
+      <!-- BAGIAN 1: DEFINISI & POTONG ADIL -->
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-amber-200 space-y-6">
+        <div class="flex items-center gap-3 border-b border-amber-100 pb-4">
+          <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-black text-xl">
+            1
+          </div>
+          <div>
+            <span class="text-xs font-black uppercase text-amber-600 tracking-wider">Prinsip Paling Penting</span>
+            <h3 class="text-xl sm:text-2xl font-heading font-black text-slate-800">
+              Apa Itu Pecahan? Mengapa Potongannya Harus SAMA BESAR?
+            </h3>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-7 space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700">
+            <p class="p-4 bg-amber-50 rounded-2xl border border-amber-200">
+              💡 <b>Pecahan</b> adalah bilangan yang menyatakan <b>sebagian dari satu kesatuan utuh</b> yang dibagi menjadi beberapa potongan <b>SAMA BESAR</b>.
+            </p>
+            <div class="space-y-2">
+              <p class="font-bold text-slate-800">Coba bayangkan kamu dan sahabatmu:</p>
+              <ul class="list-disc list-inside space-y-1.5 text-slate-600">
+                <li>Jika kue dibagi 2, tetapi satu potongan besar sekali dan yang satu sangat kecil, apakah itu adil? <b>TIDAK!</b> Itu <span class="text-rose-600 font-bold">bukan pecahan matematika</span>.</li>
+                <li>Hanya pembagian yang <b>adil dan persis sama ukuran luasnya</b> yang boleh dihitung sebagai pecahan!</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- MINI LAB INTERAKTIF: UJI KEADILAN MEMOTONG -->
+          <div class="lg:col-span-5 bg-gradient-to-b from-amber-50 to-orange-50 p-5 rounded-3xl border-2 border-amber-300 space-y-4">
+            <div class="text-center">
+              <span class="text-[11px] font-black uppercase text-amber-800 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                Laboratorium Mini
+              </span>
+              <h4 class="font-heading font-black text-slate-800 text-base mt-1">Uji Keadilan Memotong Kue</h4>
+            </div>
+
+            <div class="flex justify-center">
+              <div id="fair-lab-visual" class="w-48 h-36 rounded-2xl bg-white border-2 border-amber-300 shadow-md p-2 flex items-center justify-center">
+                <!-- Render via JS -->
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-2">
+              <button onclick="setFairLabMode(true)" id="btn-fair-cut" class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 text-white shadow-sm">
+                <span>⚖️ Potong Adil (Sama)</span>
+              </button>
+              <button onclick="setFairLabMode(false)" id="btn-unfair-cut" class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+                <span>❌ Potong Curang (Beda)</span>
+              </button>
+            </div>
+
+            <div id="fair-lab-feedback" class="p-3 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-950 border border-emerald-300">
+              ✅ <b>Sah Jadi Pecahan!</b> Kedua potongan ukurannya sama persis (masing-masing 1/2 bagian adil).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BAGIAN 2: ANATOMI PECAHAN -->
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-orange-200 space-y-6">
+        <div class="flex items-center gap-3 border-b border-orange-100 pb-4">
+          <div class="w-10 h-10 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center font-black text-xl">
+            2
+          </div>
+          <div>
+            <span class="text-xs font-black uppercase text-orange-600 tracking-wider">Struktur Angka Pecahan</span>
+            <h3 class="text-xl sm:text-2xl font-heading font-black text-slate-800">
+              Anatomi Pecahan: Siapakah Si Pembilang & Si Penyebut?
+            </h3>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          <!-- Efek Asap Polusi Fosil (Muncul saat fosil tinggi) -->
-          <div id="smog-overlay" class="absolute inset-0 bg-slate-800/0 pointer-events-none transition-all duration-700 flex items-center justify-around overflow-hidden">
-            <span class="text-5xl opacity-0 transition-opacity duration-700 smog-icon">🏭</span>
-            <span class="text-6xl opacity-0 transition-opacity duration-700 smog-icon">☁️</span>
-            <span class="text-5xl opacity-0 transition-opacity duration-700 smog-icon">😷</span>
-          </div>
+          <div class="lg:col-span-6 bg-gradient-to-tr from-amber-50 to-orange-100 p-6 sm:p-8 rounded-3xl border-3 border-orange-300 shadow-inner flex flex-col items-center justify-center space-y-4">
+            <span class="text-xs font-bold text-slate-500">Sentuh kotak atas atau bawah untuk melihat fungsi rahasianya:</span>
 
-          <!-- Bagian Langit: Matahari / Awan Bersih -->
-          <div class="relative z-10 flex justify-between items-start">
-            <div id="sky-sun" class="w-16 h-16 sm:w-20 sm:h-20 bg-amber-400 rounded-full flex items-center justify-center text-4xl shadow-xl animate-glow border-4 border-amber-200 transition-transform">
-              ☀️
-            </div>
-            <div id="sky-status-badge" class="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-md border-2 border-emerald-400 text-emerald-900 font-bold text-xs sm:text-sm flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-              Kondisi: 100% Udara Segar & Bersih
-            </div>
-          </div>
+            <div class="flex flex-col items-center select-none">
+              <!-- KOTAK PEMBILANG -->
+              <div onclick="inspectFractionPart('numerator')" id="box-numerator" class="cursor-pointer group px-8 py-3.5 rounded-2xl bg-rose-500 text-white font-heading text-5xl sm:text-6xl font-black shadow-lg border-4 border-rose-300 transition transform hover:scale-105 active:scale-95 flex items-center gap-3">
+                <span>3</span>
+                <span class="text-xs font-black bg-rose-700/80 px-2.5 py-1 rounded-xl uppercase tracking-wider group-hover:animate-pulse">
+                  Pembilang (Atas)
+                </span>
+              </div>
 
-          <!-- Siluet Lanskap Kota & Alam -->
-          <div class="relative z-10 flex items-end justify-between border-b-8 border-emerald-700 pb-1">
-            <div class="flex items-end gap-2 text-3xl sm:text-5xl">
-              <span>🏡</span>
-              <span>🏢</span>
-              <span>🌳</span>
-              <span id="turbine-sky" class="turbine-blade text-4xl sm:text-6xl" style="animation: spinTurbine 3s linear infinite;">🌬️</span>
-            </div>
-            <div class="flex items-end gap-2 text-3xl sm:text-5xl">
-              <span>🌸</span>
-              <span id="factory-sky" class="opacity-10 transition-opacity">🏭</span>
-              <span>🌳</span>
-              <span>🌲</span>
-            </div>
-          </div>
+              <!-- GARIS PEMBAGI -->
+              <div class="w-48 sm:w-60 h-2.5 bg-slate-800 my-3 rounded-full shadow-xs flex items-center justify-center">
+                <span class="text-[9px] font-black bg-white text-slate-800 px-2 py-0.2 rounded-full border border-slate-400">GARIS PEMBAGI ("PER")</span>
+              </div>
 
-        </div>
+              <!-- KOTAK PENYEBUT -->
+              <div onclick="inspectFractionPart('denominator')" id="box-denominator" class="cursor-pointer group px-8 py-3.5 rounded-2xl bg-sky-600 text-white font-heading text-5xl sm:text-6xl font-black shadow-lg border-4 border-sky-300 transition transform hover:scale-105 active:scale-95 flex items-center gap-3">
+                <span>4</span>
+                <span class="text-xs font-black bg-sky-800/80 px-2.5 py-1 rounded-xl uppercase tracking-wider group-hover:animate-pulse">
+                  Penyebut (Bawah)
+                </span>
+              </div>
+            </div>
 
-        <!-- Tuas Slider Interaktif Siswa -->
-        <div class="max-w-xl mx-auto space-y-3 bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200">
-          <div class="flex justify-between items-center text-xs sm:text-sm font-black">
-            <span class="text-rose-600 flex items-center gap-1">🪨 100% Energi Fosil (Batu Bara & Minyak)</span>
-            <span class="text-emerald-600 flex items-center gap-1">🌱 100% Energi Terbarukan</span>
-          </div>
-          <input id="comparison-slider" type="range" min="0" max="100" value="100" oninput="updateComparison(this.value)" class="w-full h-4 bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-400 rounded-lg cursor-pointer">
-          <div class="text-center">
-            <p id="slider-explanation" class="text-xs sm:text-sm font-bold text-emerald-800">
-              🌿 Luar Biasa! Dengan 100% energi terbarukan, emisi karbon adalah 0, langit cerah membiru, dan anak-anak bisa bernapas lega!
+            <p class="text-xs font-bold text-amber-900 bg-white/90 px-4 py-1.5 rounded-xl border border-amber-300 text-center">
+              Dibaca: <span class="font-heading font-black text-rose-600 text-sm">"Tiga Perempat" (3/4)</span>
             </p>
           </div>
+
+          <div class="lg:col-span-6 space-y-4">
+            <div id="anatomy-card-info" class="p-6 rounded-3xl bg-rose-50 border-3 border-rose-300 space-y-3 transition duration-300">
+              <div class="flex items-center gap-2">
+                <span id="anatomy-icon" class="text-3xl">🍓</span>
+                <div>
+                  <span id="anatomy-tag" class="text-[10px] font-black uppercase text-rose-700 bg-rose-200/80 px-2.5 py-0.5 rounded-full">
+                    Sedang Dipelajari: Angka Atas
+                  </span>
+                  <h4 id="anatomy-title" class="font-heading font-black text-xl text-rose-950">
+                    PEMBILANG (Angka 3)
+                  </h4>
+                </div>
+              </div>
+
+              <p id="anatomy-desc" class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                Pembilang menunjukkan <b>berapa banyak potongan yang sedang kita bicarakan, diambil, diwarnai, atau dimakan</b>. Pada contoh pizza, jika ada 3 potong yang sudah diambil, angka 3 diletakkan di atas!
+              </p>
+
+              <div id="anatomy-tip" class="p-3 bg-white rounded-2xl border border-rose-200 text-xs font-semibold text-rose-900">
+                💡 <b>Tips Ingat Chef Kiko:</b> Ingat kata <b>PEM</b>bilang = <b>PEM</b>akan (yang mengambil/memakan potongan).
+              </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-600">Simulasi Kotak 3/4:</span>
+              <div class="flex gap-1.5">
+                <div class="w-8 h-8 rounded-lg bg-rose-500 text-white font-bold flex items-center justify-center shadow-xs">1</div>
+                <div class="w-8 h-8 rounded-lg bg-rose-500 text-white font-bold flex items-center justify-center shadow-xs">2</div>
+                <div class="w-8 h-8 rounded-lg bg-rose-500 text-white font-bold flex items-center justify-center shadow-xs">3</div>
+                <div class="w-8 h-8 rounded-lg bg-slate-200 border border-slate-400 text-slate-500 font-bold flex items-center justify-center shadow-inner">4</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- BAGIAN 3: EKSPLORASI BENDA NYATA -->
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-lg border-4 border-rose-200 space-y-6">
+        <div class="flex items-center gap-3 border-b border-rose-100 pb-4">
+          <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-black text-xl">
+            3
+          </div>
+          <div>
+            <span class="text-xs font-black uppercase text-rose-600 tracking-wider">Matematika di Sekitar Kita</span>
+            <h3 class="text-xl sm:text-2xl font-heading font-black text-slate-800">
+              Pecahan di Dapur & Meja Makan: Sentuh untuk Membelah! 🍎🍉🥞
+            </h3>
+          </div>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- APEL 1/2 -->
+          <div class="bg-gradient-to-b from-rose-50 to-red-50 rounded-3xl p-5 border-2 border-rose-200 text-center space-y-3 shadow-sm hover:shadow-md transition">
+            <span class="text-xs font-black bg-rose-200 text-rose-900 px-3 py-1 rounded-full uppercase">
+              1 Apel Dibagi 2 Sahabat
+            </span>
+            <div id="real-apple-visual" onclick="toggleFoodSplit('apple')" class="cursor-pointer h-32 flex items-center justify-center transform hover:scale-105 active:scale-95 transition">
+              <!-- Render via JS -->
+            </div>
+            <div class="font-heading font-black text-2xl text-rose-600">
+              1 / 2
+            </div>
+            <p class="text-xs text-slate-600">
+              1 buah apel dipotong pas di tengah menjadi 2 belahan sama besar. Tiap anak mendapat <b>seperdua (setengah)</b> apel!
+            </p>
+            <button onclick="toggleFoodSplit('apple')" class="px-3.5 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition">
+              Belah / Gabung Apel 🍎
+            </button>
+          </div>
+
+          <!-- SEMANGKA 1/4 -->
+          <div class="bg-gradient-to-b from-emerald-50 to-teal-50 rounded-3xl p-5 border-2 border-emerald-200 text-center space-y-3 shadow-sm hover:shadow-md transition">
+            <span class="text-xs font-black bg-emerald-200 text-emerald-900 px-3 py-1 rounded-full uppercase">
+              1 Semangka Dibagi 4 Orang
+            </span>
+            <div id="real-melon-visual" onclick="toggleFoodSplit('melon')" class="cursor-pointer h-32 flex items-center justify-center transform hover:scale-105 active:scale-95 transition">
+              <!-- Render via JS -->
+            </div>
+            <div class="font-heading font-black text-2xl text-emerald-600">
+              1 / 4
+            </div>
+            <p class="text-xs text-slate-600">
+              Semangka bulat dipotong 4 juring sama besar. Tiap orang menikmati <b>seperempat (1/4)</b> semangka!
+            </p>
+            <button onclick="toggleFoodSplit('melon')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition">
+              Potong / Gabung Semangka 🍉
+            </button>
+          </div>
+
+          <!-- MARTABAK 1/8 -->
+          <div class="bg-gradient-to-b from-amber-50 to-yellow-50 rounded-3xl p-5 border-2 border-amber-200 text-center space-y-3 shadow-sm hover:shadow-md transition">
+            <span class="text-xs font-black bg-amber-200 text-amber-900 px-3 py-1 rounded-full uppercase">
+              1 Martabak Dibagi 8 Potong
+            </span>
+            <div id="real-martabak-visual" onclick="toggleFoodSplit('martabak')" class="cursor-pointer h-32 flex items-center justify-center transform hover:scale-105 active:scale-95 transition">
+              <!-- Render via JS -->
+            </div>
+            <div class="font-heading font-black text-2xl text-amber-700">
+              1 / 8
+            </div>
+            <p class="text-xs text-slate-600">
+              Martabak dipotong 8 potong kecil. Memakan 1 potong artinya kamu menikmati <b>seperdelapan (1/8)</b> loyang!
+            </p>
+            <button onclick="toggleFoodSplit('martabak')" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition">
+              Iris / Satukan Martabak 🥞
+            </button>
+          </div>
+
+        </div>
+
+        <div class="p-6 bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+          <div class="space-y-1 text-center sm:text-left">
+            <h4 class="font-heading font-black text-lg sm:text-xl">Sudah Paham Konsep Dasarnya?</h4>
+            <p class="text-xs sm:text-sm text-orange-100">Ayo langsung praktik di Meja Potong Pizza Chef Kiko!</p>
+          </div>
+          <button onclick="switchNavTab('pizza')" class="px-6 py-3 bg-white text-orange-600 hover:bg-orange-50 font-heading font-black rounded-2xl shadow-lg transition transform active:scale-95 text-sm flex-shrink-0">
+            Masuk ke Meja Potong Pizza ➔
+          </button>
+        </div>
       </div>
 
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SECTION 2: KOTA MANDIRI ENERGI HIJAU (INTERACTIVE SANDBOX SIMULATOR) -->
+    <!-- TAB 1: MEJA POTONG PIZZA -->
     <!-- ========================================================================= -->
-    <section id="section-simulator" class="space-y-6 hidden">
+    <section id="section-pizza" class="space-y-6 hidden">
       
-      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-amber-200 space-y-6">
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-orange-200 space-y-6">
         
-        <!-- Header Simulator -->
         <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
           <div>
-            <span class="px-3 py-1 bg-amber-100 text-amber-900 text-xs font-black rounded-full uppercase">
-              Simulator Sandbox Siswa
+            <span class="px-3 py-1 bg-orange-100 text-orange-900 text-xs font-black rounded-full uppercase">
+              Manipulatif Virtual Pecahan
             </span>
-            <h3 class="text-2xl sm:text-3xl font-heading font-black text-slate-800 mt-1 flex items-center gap-2">
-              Kota Mandiri Energi Hijau "Nusantara Sejahtera" 🏙️⚡
+            <h3 class="text-2xl sm:text-3xl font-heading font-black text-slate-800 mt-1">
+              Meja Potong Pizza Chef Kiko 🍕
             </h3>
             <p class="text-xs sm:text-sm text-slate-500 font-semibold">
-              Geser kekuatan matahari, angin, dan bendungan air untuk menyalakan rumah warga dan gedung sekolah!
+              Klik potongan pizza untuk <b>memakannya</b> (muncul cekungan loyang & remahan) atau klik kembali untuk <b>mengembalikannya</b>!
             </p>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="resetSimulator()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Kota
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="toggleToppingMode()" id="btn-toggle-topping" class="px-3.5 py-2 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs rounded-xl transition">
+              <span>🍕 Topping: Pepperoni & Basil</span>
+            </button>
+            <button onclick="restoreAllSlices()" class="px-3.5 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs rounded-xl transition">
+              Kembalikan Utuh
+            </button>
+            <button onclick="eatAllSlices()" class="px-3.5 py-2 bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs rounded-xl transition">
+              Makan Semua
             </button>
           </div>
         </div>
 
-        <!-- FULL-WIDTH DISPLAY KOTA VIRTUAL INTERAKTIF -->
-        <div id="eco-city-stage" class="relative w-full h-80 sm:h-96 rounded-3xl overflow-hidden border-4 border-amber-300 shadow-inner flex flex-col justify-between p-4 sm:p-6 transition-all duration-500" style="background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 50%, #86efac 100%);">
+        <!-- Pemilih Penyebut (2, 3, 4, 6, 8) -->
+        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 bg-amber-50 p-3 rounded-2xl border border-amber-200">
+          <span class="text-xs font-black text-amber-900 mr-2">Pilih Total Potongan (Penyebut):</span>
+          <button onclick="changePizzaDenominator(2)" id="btn-slice-2" class="px-3.5 py-1.5 rounded-xl font-heading font-black text-xs sm:text-sm border-2 transition bg-white text-slate-700 border-slate-200 hover:border-amber-400">
+            2 Potong (1/2)
+          </button>
+          <button onclick="changePizzaDenominator(3)" id="btn-slice-3" class="px-3.5 py-1.5 rounded-xl font-heading font-black text-xs sm:text-sm border-2 transition bg-white text-slate-700 border-slate-200 hover:border-amber-400">
+            3 Potong (1/3)
+          </button>
+          <button onclick="changePizzaDenominator(4)" id="btn-slice-4" class="px-3.5 py-1.5 rounded-xl font-heading font-black text-xs sm:text-sm border-2 transition bg-orange-500 text-white border-orange-500 shadow-sm">
+            4 Potong (1/4)
+          </button>
+          <button onclick="changePizzaDenominator(6)" id="btn-slice-6" class="px-3.5 py-1.5 rounded-xl font-heading font-black text-xs sm:text-sm border-2 transition bg-white text-slate-700 border-slate-200 hover:border-amber-400">
+            6 Potong (1/6)
+          </button>
+          <button onclick="changePizzaDenominator(8)" id="btn-slice-8" class="px-3.5 py-1.5 rounded-xl font-heading font-black text-xs sm:text-sm border-2 transition bg-white text-slate-700 border-slate-200 hover:border-amber-400">
+            8 Potong (1/8)
+          </button>
+        </div>
+
+        <!-- Area Meja Kerja Pizza SVG -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
-          <!-- Langit & Generator Elemen -->
-          <div class="relative z-10 flex justify-between items-start">
+          <div class="lg:col-span-7 flex flex-col items-center justify-center bg-gradient-to-b from-amber-100/70 via-orange-50 to-amber-100 p-6 rounded-3xl border-3 border-dashed border-amber-300 relative min-h-[380px]">
             
-            <!-- Matahari Interaktif (Ukuran & Cahaya membesar mengikuti slider) -->
-            <div id="sim-sun" class="flex flex-col items-center transition-all duration-300">
-              <div id="sim-sun-orb" class="w-20 h-20 bg-amber-400 rounded-full flex items-center justify-center text-4xl shadow-xl border-4 border-amber-200 animate-glow">
-                ☀️
+            <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full bg-amber-900 p-3.5 shadow-2xl flex items-center justify-center border-4 border-amber-950">
+              <div class="w-full h-full rounded-full bg-slate-300 relative overflow-hidden flex items-center justify-center shadow-inner border-2 border-slate-400">
+                <svg id="pizza-interactive-svg" viewBox="0 0 220 220" class="w-full h-full transform -rotate-90">
+                  <!-- Rendered via JS -->
+                </svg>
               </div>
-              <span id="sim-sun-label" class="mt-1 bg-white/90 text-amber-950 font-black text-[11px] px-2.5 py-0.5 rounded-full border border-amber-300">
-                Surya: 50%
-              </span>
             </div>
 
-            <!-- Dashboard Meter Daya Listrik Real-time -->
-            <div class="bg-white/90 backdrop-blur-md p-3 sm:p-4 rounded-2xl border-2 border-emerald-400 shadow-lg text-right space-y-1">
-              <span class="text-[10px] uppercase font-black text-slate-500 block">Total Pasokan Listrik Kota</span>
-              <div class="flex items-center justify-end gap-1 font-heading text-2xl sm:text-3xl font-black text-emerald-600">
-                <span id="sim-total-watt">450</span>
-                <span class="text-sm font-sans font-bold text-slate-600">kW / 500 kW</span>
+            <div class="mt-4 flex items-center gap-3 bg-white/90 px-4 py-1.5 rounded-full shadow-xs text-xs font-bold text-amber-950">
+              <span class="inline-block w-3 h-3 rounded-full bg-amber-500"></span> Irisan Utuh
+              <span class="inline-block w-3 h-3 rounded-full bg-slate-400 ml-2"></span> Loyang Dimakan (🍴)
+            </div>
+          </div>
+
+          <!-- Papan Metrik Real-Time -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <div class="bg-rose-50 border-3 border-rose-300 rounded-3xl p-5 shadow-sm space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black uppercase text-rose-700 bg-rose-200 px-2.5 py-0.5 rounded-full">
+                  Potongan Dimakan (Pembilang)
+                </span>
+                <span class="text-2xl">😋</span>
               </div>
-              <div class="w-36 sm:w-48 bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                <div id="sim-watt-bar" class="bg-gradient-to-r from-amber-400 to-emerald-500 h-full w-[90%] transition-all duration-300"></div>
+              <div class="flex items-baseline gap-2">
+                <div class="font-heading text-5xl font-black text-rose-600 leading-none">
+                  <span id="stat-eaten-num">0</span>/<span id="stat-eaten-denom">4</span>
+                </div>
+                <span id="stat-eaten-words" class="text-sm font-bold text-rose-800">Nol Potong</span>
               </div>
-              <p id="city-light-status" class="text-[11px] font-extrabold text-emerald-800">
-                💡 Seluruh Lampu Kota Menyala Terang!
+              <p id="stat-eaten-detail" class="text-xs text-rose-900 font-semibold">
+                Belum ada irisan pizza yang dimakan.
+              </p>
+            </div>
+
+            <div class="bg-emerald-50 border-3 border-emerald-300 rounded-3xl p-5 shadow-sm space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black uppercase text-emerald-700 bg-emerald-200 px-2.5 py-0.5 rounded-full">
+                  Sisa Pizza di Atas Loyang
+                </span>
+                <span class="text-2xl">🍕</span>
+              </div>
+              <div class="flex items-baseline gap-2">
+                <div class="font-heading text-5xl font-black text-emerald-600 leading-none">
+                  <span id="stat-left-num">4</span>/<span id="stat-left-denom">4</span>
+                </div>
+                <span id="stat-left-words" class="text-sm font-bold text-emerald-800">Empat Perempat (1 Loyang)</span>
+              </div>
+              <p id="stat-left-detail" class="text-xs text-emerald-900 font-semibold">
+                Semua irisan pizza masih utuh tersedia.
+              </p>
+            </div>
+
+            <div class="p-4 bg-amber-50 rounded-2xl border-2 border-amber-300 text-xs font-bold text-amber-950 text-center">
+              📐 <b>Rumus Pecahan Utuh:</b>
+              <p id="stat-math-sum" class="text-sm font-heading font-black text-orange-600 mt-0.5">
+                0/4 + 4/4 = 4/4 = 1 Loyang Utuh!
               </p>
             </div>
 
           </div>
 
-          <!-- Lanskap Kota: Rumah, Sekolah, Turbin Angin, PLTA, Panel Surya -->
-          <div class="relative z-10 flex items-end justify-between border-b-8 border-emerald-800 pb-1">
-            
-            <!-- Zona Pembangkit Terbarukan -->
-            <div class="flex items-end gap-3 sm:gap-6">
-              <!-- Turbin Angin 1 -->
-              <div class="flex flex-col items-center">
-                <div id="city-turbine-1" class="turbine-blade text-4xl sm:text-6xl text-slate-700" style="animation: spinTurbine 2s linear infinite;">
-                  ⚙️
-                </div>
-                <div class="w-2 h-12 sm:h-16 bg-slate-400"></div>
-                <span class="text-[10px] font-bold bg-white/80 px-1.5 py-0.5 rounded text-sky-900">PLTB Angin</span>
-              </div>
-
-              <!-- Panel Surya Lapangan -->
-              <div class="flex flex-col items-center">
-                <div class="flex gap-1 text-2xl sm:text-3xl">
-                  <span id="panel-1" class="transition-all filter drop-shadow">🟦</span>
-                  <span id="panel-2" class="transition-all filter drop-shadow">🟦</span>
-                </div>
-                <div class="w-12 h-4 bg-slate-600 rounded-t-sm"></div>
-                <span class="text-[10px] font-bold bg-white/80 px-1.5 py-0.5 rounded text-amber-900">Panel Surya</span>
-              </div>
-
-              <!-- PLTA Waduk Mini -->
-              <div class="flex flex-col items-center">
-                <div id="city-water-flow" class="text-3xl animate-bounce">🌊</div>
-                <div class="w-10 h-8 bg-blue-500 rounded-t-md flex items-center justify-center text-white text-[10px] font-black">
-                  PLTA
-                </div>
-                <span class="text-[10px] font-bold bg-white/80 px-1.5 py-0.5 rounded text-blue-900">Bendungan</span>
-              </div>
-            </div>
-
-            <!-- Zona Pemukiman & Gedung Kota (Lampu Menyala / Redup) -->
-            <div class="flex items-end gap-2 sm:gap-4">
-              <div class="text-center">
-                <div id="building-hospital" class="text-3xl sm:text-5xl transition-all duration-300 filter drop-shadow">
-                  🏥
-                </div>
-                <span class="text-[9px] font-extrabold bg-white/80 px-1 rounded block">Rumah Sakit</span>
-              </div>
-              <div class="text-center">
-                <div id="building-school" class="text-3xl sm:text-5xl transition-all duration-300 filter drop-shadow">
-                  🏫
-                </div>
-                <span class="text-[9px] font-extrabold bg-white/80 px-1 rounded block">Sekolah Ceria</span>
-              </div>
-              <div class="text-center">
-                <div id="building-houses" class="text-3xl sm:text-5xl transition-all duration-300 filter drop-shadow">
-                  🏘️
-                </div>
-                <span class="text-[9px] font-extrabold bg-white/80 px-1 rounded block">Rumah Warga</span>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- PANEL TUAS PENGATUR ALAM (Siswa Sebagai Insinyur Energi) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 bg-emerald-50/70 p-5 rounded-3xl border-2 border-emerald-200">
-          
-          <!-- Slider 1: Matahari -->
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-amber-200 space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-sm text-amber-900 flex items-center gap-1.5">
-                <span>☀️</span> Terik Cahaya Matahari
-              </span>
-              <span id="label-sun-val" class="text-xs font-black bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">50%</span>
-            </div>
-            <input id="slider-sun" type="range" min="0" max="100" value="50" oninput="calculateCityPower()" class="w-full h-3 bg-amber-100 rounded-lg cursor-pointer">
-            <p class="text-[11px] text-slate-500 font-semibold">Menggerakkan sel panel surya fotovoltaik.</p>
-          </div>
-
-          <!-- Slider 2: Angin -->
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-sky-200 space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-sm text-sky-900 flex items-center gap-1.5">
-                <span>💨</span> Kecepatan Angin
-              </span>
-              <span id="label-wind-val" class="text-xs font-black bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">50%</span>
-            </div>
-            <input id="slider-wind" type="range" min="0" max="100" value="50" oninput="calculateCityPower()" class="w-full h-3 bg-sky-100 rounded-lg cursor-pointer">
-            <p class="text-[11px] text-slate-500 font-semibold">Mengatur kecepatan putaran turbin PLTB.</p>
-          </div>
-
-          <!-- Slider 3: Aliran Air -->
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-200 space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-sm text-blue-900 flex items-center gap-1.5">
-                <span>🌊</span> Debit Air Bendungan
-              </span>
-              <span id="label-water-val" class="text-xs font-black bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">50%</span>
-            </div>
-            <input id="slider-water" type="range" min="0" max="100" value="50" oninput="calculateCityPower()" class="w-full h-3 bg-blue-100 rounded-lg cursor-pointer">
-            <p class="text-[11px] text-slate-500 font-semibold">Memutar generator hidrolik di bendungan PLTA.</p>
-          </div>
-
         </div>
 
       </div>
@@ -593,158 +651,306 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SECTION 3: MISI GAME ASESMEN INTERAKTIF -->
+    <!-- TAB 2: PABRIK COKELAT -->
     <!-- ========================================================================= -->
-    <section id="section-games" class="space-y-6 hidden">
+    <section id="section-choco" class="space-y-6 hidden">
       
-      <!-- Sub-Game Navigation Tabs -->
-      <div class="flex flex-wrap gap-3 justify-center">
-        <button id="btn-subgame-sort" onclick="switchSubGame('sort')" class="px-5 py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-md transition flex items-center gap-2">
-          <i data-lucide="layers" class="w-4 h-4"></i>
-          <span>Misi 1: Pilah Sumber Energi!</span>
-        </button>
-        <button id="btn-subgame-quiz" onclick="switchSubGame('quiz')" class="px-5 py-2.5 rounded-2xl font-bold text-sm bg-white text-slate-700 hover:bg-emerald-100 shadow-sm transition flex items-center gap-2">
-          <i data-lucide="help-circle" class="w-4 h-4 text-indigo-500"></i>
-          <span>Misi 2: Kuis Detektif Energi</span>
-        </button>
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-amber-800/30 space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+          <div>
+            <span class="px-3 py-1 bg-amber-200 text-amber-950 text-xs font-black rounded-full uppercase">
+              Pecahan Persegi Panjang
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-heading font-black text-slate-800 mt-1">
+              Pabrik Cokelat Manis 🍫
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-500 font-semibold">
+              Bukan cuma lingkaran, pecahan juga sering kita temui pada cokelat batang! Klik petak cokelat untuk mematahkannya.
+            </p>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button onclick="setChocoBlocks(6)" id="btn-choco-select-6" class="px-4 py-2 rounded-xl font-bold text-xs bg-amber-500 text-amber-950 shadow-md">
+              6 Petak (1/6)
+            </button>
+            <button onclick="setChocoBlocks(8)" id="btn-choco-select-8" class="px-4 py-2 rounded-xl font-bold text-xs bg-amber-900 text-amber-200 hover:bg-amber-800">
+              8 Petak (1/8)
+            </button>
+          </div>
+        </div>
+
+        <div class="max-w-2xl mx-auto space-y-5">
+          <div class="bg-amber-950 p-6 sm:p-8 rounded-3xl shadow-2xl border-4 border-amber-900 flex justify-center">
+            <div id="choco-grid-container" class="grid gap-3 w-full max-w-md">
+              <!-- Render via JS -->
+            </div>
+          </div>
+
+          <div class="p-5 bg-amber-50 rounded-2xl border-2 border-amber-300 flex flex-wrap items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+              <span class="text-xs font-bold text-slate-500">Pecahan Cokelat Dimakan:</span>
+              <p id="choco-display-fraction" class="text-xl sm:text-2xl font-heading font-black text-amber-900">
+                0 / 6 Petak (Nol)
+              </p>
+              <p class="text-xs text-slate-500">Sisa Cokelat: <b id="choco-display-left" class="text-emerald-700">6 / 6 Petak</b></p>
+            </div>
+            <button onclick="resetChocoBar()" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
+              Bungkus Cokelat Baru
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- GAME 1: PILAH ENERGI KE KERANJANG YANG TEPAT (Click / Tap Friendly) -->
-      <div id="subgame-sort-box" class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-emerald-100 space-y-6">
-        
-        <div class="text-center max-w-xl mx-auto space-y-2">
-          <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-black rounded-full uppercase">
-            Game Klasifikasi
-          </span>
-          <h3 class="text-2xl sm:text-3xl font-heading font-black text-slate-800">
-            Tolong Kak Boni Memilah Energi! 🧺
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-600">
-            Pilih kartu sumber energi di bawah, lalu klik keranjang yang sesuai: <b>Energi Terbarukan</b> atau <b>Energi Tak Terbarukan</b>!
-          </p>
-        </div>
+    </section>
 
-        <!-- Kartu Item Energi yang Tersedia -->
-        <div class="space-y-2">
-          <p class="text-xs font-extrabold text-slate-400 uppercase text-center">Sentuh Kartu yang Ingin Dipilah:</p>
-          <div id="energy-pool" class="flex flex-wrap justify-center gap-3">
-            <!-- Render via JS -->
+    <!-- ========================================================================= -->
+    <!-- TAB 3: PECAHAN SENILAI -->
+    <!-- ========================================================================= -->
+    <section id="section-senilai" class="space-y-6 hidden">
+      
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-sky-200 space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+          <div>
+            <span class="px-3 py-1 bg-sky-100 text-sky-900 text-xs font-black rounded-full uppercase">
+              Keajaiban Matematika SD
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-heading font-black text-slate-800 mt-1">
+              Pecahan Senilai: Angka Berbeda, Luas Tetap Sama! 🎂
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600">
+              Bandingkan ketiga kue di bawah ini. Walaupun dipotong dengan jumlah irisan berbeda, perhatikan bagian kuning yang diwarnai!
+            </p>
           </div>
-        </div>
-
-        <!-- 2 Keranjang Penerima -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
-          
-          <!-- Keranjang A: Terbarukan -->
-          <div onclick="dropToBasket('terbarukan')" class="cursor-pointer bg-gradient-to-b from-emerald-50 to-teal-50 border-3 border-dashed border-emerald-400 hover:border-emerald-600 rounded-3xl p-5 transition transform hover:scale-[1.01] active:scale-95 space-y-3 flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-3xl">🌱</span>
-                <div>
-                  <h4 class="font-heading font-bold text-lg text-emerald-950 leading-tight">Energi Terbarukan</h4>
-                  <span class="text-xs text-emerald-700 font-semibold">Ramah bumi & tidak akan habis</span>
-                </div>
-              </div>
-              <span id="badge-count-renewable" class="text-xs font-black bg-emerald-200 text-emerald-900 px-2.5 py-1 rounded-full">0/4</span>
-            </div>
-            
-            <div id="basket-renewable" class="min-h-24 bg-white/70 rounded-2xl p-3 flex flex-wrap gap-2 items-center justify-center border border-emerald-200 text-xs font-bold text-emerald-600">
-              Klik keranjang ini untuk memasukkan kartu pilihanmu!
-            </div>
-          </div>
-
-          <!-- Keranjang B: Tak Terbarukan -->
-          <div onclick="dropToBasket('non-terbarukan')" class="cursor-pointer bg-gradient-to-b from-rose-50 to-amber-50 border-3 border-dashed border-rose-400 hover:border-rose-600 rounded-3xl p-5 transition transform hover:scale-[1.01] active:scale-95 space-y-3 flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-3xl">🪨</span>
-                <div>
-                  <h4 class="font-heading font-bold text-lg text-rose-950 leading-tight">Energi Tak Terbarukan</h4>
-                  <span class="text-xs text-rose-700 font-semibold">Bisa habis & menimbulkan polusi asap</span>
-                </div>
-              </div>
-              <span id="badge-count-nonrenewable" class="text-xs font-black bg-rose-200 text-rose-900 px-2.5 py-1 rounded-full">0/3</span>
-            </div>
-            
-            <div id="basket-nonrenewable" class="min-h-24 bg-white/70 rounded-2xl p-3 flex flex-wrap gap-2 items-center justify-center border border-rose-200 text-xs font-bold text-rose-600">
-              Klik keranjang ini untuk memasukkan kartu pilihanmu!
-            </div>
-          </div>
-
-        </div>
-
-        <div class="flex justify-between items-center border-t pt-4">
-          <p id="sort-feedback" class="text-xs sm:text-sm font-bold text-slate-600">
-            Pilihlah salah satu kartu di atas!
-          </p>
-          <button onclick="resetSortGame()" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition">
-            Acak Ulang Kartu
+          <button onclick="celebrateEquivalence()" class="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-sm transition">
+            ✨ Buktikan Sama Besar!
           </button>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+          
+          <!-- Cake 1: 1/2 -->
+          <div class="bg-gradient-to-b from-sky-50 to-blue-50 rounded-3xl p-6 border-3 border-sky-200 space-y-3">
+            <h4 class="font-heading font-black text-base text-sky-950">1 Bagian dari 2 Potong</h4>
+            <div class="w-36 h-36 mx-auto filter drop-shadow-md">
+              <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+                <circle cx="50" cy="50" r="45" fill="#f1f5f9" stroke="#0284c7" stroke-width="3"/>
+                <path d="M 50,50 L 5,50 A 45,45 0 0,1 95,50 Z" fill="#f59e0b" />
+                <line x1="5" y1="50" x2="95" y2="50" stroke="#0369a1" stroke-width="3" />
+              </svg>
+            </div>
+            <div class="inline-block bg-white px-4 py-1 rounded-2xl shadow-xs border-2 border-sky-300 font-heading font-black text-2xl text-sky-700">
+              1 / 2
+            </div>
+            <p class="text-xs text-slate-600 font-medium">Persis setengah kue diwarnai kuning keju.</p>
+          </div>
+
+          <!-- Cake 2: 2/4 -->
+          <div class="bg-gradient-to-b from-sky-50 to-blue-50 rounded-3xl p-6 border-3 border-sky-200 space-y-3">
+            <h4 class="font-heading font-black text-base text-sky-950">2 Bagian dari 4 Potong</h4>
+            <div class="w-36 h-36 mx-auto filter drop-shadow-md">
+              <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+                <circle cx="50" cy="50" r="45" fill="#f1f5f9" stroke="#0284c7" stroke-width="3"/>
+                <path d="M 50,50 L 5,50 A 45,45 0 0,1 95,50 Z" fill="#f59e0b" />
+                <line x1="5" y1="50" x2="95" y2="50" stroke="#0369a1" stroke-width="3" />
+                <line x1="50" y1="5" x2="50" y2="95" stroke="#0369a1" stroke-width="3" />
+              </svg>
+            </div>
+            <div class="inline-block bg-white px-4 py-1 rounded-2xl shadow-xs border-2 border-sky-300 font-heading font-black text-2xl text-sky-700">
+              2 / 4
+            </div>
+            <p class="text-xs text-slate-600 font-medium">2 potong kecil, namun jika disatukan tetap setengah kue!</p>
+          </div>
+
+          <!-- Cake 3: 4/8 -->
+          <div class="bg-gradient-to-b from-sky-50 to-blue-50 rounded-3xl p-6 border-3 border-sky-200 space-y-3">
+            <h4 class="font-heading font-black text-base text-sky-950">4 Bagian dari 8 Potong</h4>
+            <div class="w-36 h-36 mx-auto filter drop-shadow-md">
+              <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+                <circle cx="50" cy="50" r="45" fill="#f1f5f9" stroke="#0284c7" stroke-width="3"/>
+                <path d="M 50,50 L 5,50 A 45,45 0 0,1 95,50 Z" fill="#f59e0b" />
+                <line x1="5" y1="50" x2="95" y2="50" stroke="#0369a1" stroke-width="3" />
+                <line x1="50" y1="5" x2="50" y2="95" stroke="#0369a1" stroke-width="3" />
+                <line x1="18.2" y1="18.2" x2="81.8" y2="81.8" stroke="#0369a1" stroke-width="2.5" />
+                <line x1="18.2" y1="81.8" x2="81.8" y2="18.2" stroke="#0369a1" stroke-width="2.5" />
+              </svg>
+            </div>
+            <div class="inline-block bg-white px-4 py-1 rounded-2xl shadow-xs border-2 border-sky-300 font-heading font-black text-2xl text-sky-700">
+              4 / 8
+            </div>
+            <p class="text-xs text-slate-600 font-medium">4 potong mini yang identik dengan setengah kue awal!</p>
+          </div>
+
+        </div>
+
+        <div class="p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 text-center">
+          <p class="font-heading font-black text-emerald-950 text-base sm:text-xl">
+            Kesimpulan Ajaib: <span class="text-orange-600">1/2</span> = <span class="text-orange-600">2/4</span> = <span class="text-orange-600">4/8</span>!
+          </p>
+          <p class="text-xs text-emerald-800 mt-1 font-semibold">
+            Walaupun dipotong menjadi bagian yang lebih kecil, luas permukaan makanan yang didapat tetap sama besarnya!
+          </p>
+        </div>
       </div>
 
-      <!-- GAME 2: KUIS DETEKTIF ENERGI HIJAU -->
-      <div id="subgame-quiz-box" class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-indigo-100 space-y-6 hidden">
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 4: GAME KASIR KEDAI -->
+    <!-- ========================================================================= -->
+    <section id="section-games" class="space-y-6 hidden">
+      
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-rose-200 space-y-6">
         
-        <div class="flex items-center justify-between border-b pb-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
           <div>
-            <span class="text-xs font-black uppercase text-indigo-700 bg-indigo-100 px-3 py-1 rounded-full">
-              Kuis Pengetahuan IPAS
+            <span class="px-3 py-1 bg-rose-100 text-rose-900 text-xs font-black rounded-full uppercase">
+              Misi Koki Cilik
             </span>
-            <h3 class="text-2xl font-heading font-black text-indigo-950 mt-1">
-              Misi Penyelamat Energi Dunia 🌍
+            <h3 class="text-2xl sm:text-3xl font-heading font-black text-slate-800 mt-1">
+              Kasir Kedai: Sajikan Pizza Pesanan Pelanggan! 🛎️
             </h3>
+            <p class="text-xs sm:text-sm text-slate-500 font-semibold">
+              Teman-teman hewan datang memesan pizza. Klik potongan di piring saji agar jumlahnya tepat sesuai permintaan mereka!
+            </p>
           </div>
-          <div class="text-right">
-            <span class="text-xs font-bold text-slate-400">Pertanyaan</span>
-            <p id="quiz-progress-text" class="text-xl font-heading font-black text-indigo-600">1 / 5</p>
+
+          <div class="flex items-center gap-2 bg-rose-50 px-4 py-2 rounded-2xl border border-rose-200">
+            <span class="text-xs font-bold text-rose-800">Pesanan Sukses:</span>
+            <span id="game-order-streak" class="font-heading text-lg font-black text-rose-600">0 / 5</span>
           </div>
         </div>
 
-        <!-- Quiz Container -->
-        <div id="quiz-question-container" class="space-y-4">
-          <div class="bg-indigo-50/80 p-5 rounded-3xl border-2 border-indigo-200">
-            <span id="quiz-theme-badge" class="text-xs font-extrabold text-indigo-600 uppercase">
-              Pertanyaan #1
-            </span>
-            <h4 id="quiz-question-title" class="text-lg sm:text-xl font-bold text-slate-800 mt-1 leading-snug">
-              Mengapa energi matahari disebut sebagai energi terbarukan?
-            </h4>
+        <div class="bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 p-6 rounded-3xl border-3 border-rose-300 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div class="flex items-center gap-4">
+            <div id="game-customer-avatar" class="w-16 h-16 rounded-2xl bg-white shadow-md border-2 border-rose-300 flex items-center justify-center text-4xl">
+              🐰
+            </div>
+            <div>
+              <span id="game-customer-name" class="text-xs font-black text-rose-700 bg-rose-200/80 px-2.5 py-0.5 rounded-full">
+                Pelanggan: Kelinci Ruby
+              </span>
+              <h4 id="game-customer-dialog" class="text-lg sm:text-2xl font-heading font-black text-slate-800 mt-1">
+                "Halo koki! Aku ingin 2/4 loyang pizza ya!"
+              </h4>
+              <p class="text-xs text-slate-600 font-semibold mt-0.5">
+                Targetmu: Pilih tepat <b id="game-target-fraction" class="text-rose-700 text-sm">2/4</b> bagian pizza!
+              </p>
+            </div>
           </div>
 
-          <!-- Opsi Jawaban -->
-          <div id="quiz-options-list" class="grid grid-cols-1 gap-3">
+          <button onclick="submitCustomerOrder()" class="px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-heading font-black text-base rounded-2xl shadow-lg transition transform active:scale-95 flex-shrink-0">
+            🛎️ Sajikan Pesanan!
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          
+          <div class="bg-amber-50 p-6 rounded-3xl border-2 border-amber-200 flex flex-col items-center justify-center">
+            <span class="text-xs font-bold text-amber-900 mb-2">Pilih potongan pizza yang akan disajikan:</span>
+            
+            <div class="w-60 h-60 rounded-full bg-amber-900 p-3 shadow-xl border-4 border-amber-950 flex items-center justify-center">
+              <div class="w-full h-full rounded-full bg-slate-300 overflow-hidden flex items-center justify-center shadow-inner border-2 border-slate-400">
+                <svg id="game-order-svg" viewBox="0 0 200 200" class="w-full h-full transform -rotate-90">
+                  <!-- Render via JS -->
+                </svg>
+              </div>
+            </div>
+
+            <p class="text-xs font-semibold text-slate-600 mt-3">
+              Potongan dipilih di piring: <b id="game-order-count-text" class="text-rose-600 font-bold">0</b> potong
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="p-5 bg-white rounded-2xl border-2 border-slate-200 shadow-xs space-y-2">
+              <h5 class="text-xs font-extrabold uppercase text-slate-400">Pecahan di Piring Kasir:</h5>
+              <div class="flex items-center gap-4">
+                <div class="font-heading text-4xl font-black text-rose-600">
+                  <span id="game-current-num">0</span>
+                  <div class="w-10 h-1 bg-slate-800 my-0.5 rounded-full"></div>
+                  <span id="game-current-denom">4</span>
+                </div>
+                <div>
+                  <p id="game-current-read" class="font-bold text-sm text-slate-800">Belum ada yang dipilih</p>
+                  <p class="text-xs text-slate-500">Klik irisan pizza di sebelah kiri agar nilainya cocok!</p>
+                </div>
+              </div>
+            </div>
+
+            <div id="game-feedback-box" class="hidden p-4 rounded-2xl text-xs sm:text-sm font-bold"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 5: KUIS LISENSI KOKI -->
+    <!-- ========================================================================= -->
+    <section id="section-quiz" class="space-y-6 hidden">
+      
+      <div class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-amber-200 space-y-6">
+        
+        <div class="flex items-center justify-between border-b pb-4">
+          <div>
+            <span class="text-xs font-black uppercase text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+              Asesmen Formatif Menyenangkan
+            </span>
+            <h3 class="text-2xl font-heading font-black text-amber-950 mt-1">
+              Uji Lisensi Koki Pecahan Bintang 5 🎖️
+            </h3>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-bold text-slate-400">Soal</span>
+            <p id="quiz-progress-text" class="text-xl font-heading font-black text-amber-600">1 / 5</p>
+          </div>
+        </div>
+
+        <div id="quiz-question-box" class="space-y-5">
+          <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-5 sm:p-6 rounded-3xl border-2 border-amber-200 flex flex-col md:flex-row items-center gap-6">
+            <div id="quiz-visual-icon" class="w-32 h-32 flex-shrink-0 bg-white rounded-2xl p-2 shadow-md border-2 border-amber-300 flex items-center justify-center">
+              <!-- Render via JS -->
+            </div>
+            <div>
+              <span class="text-[11px] font-black uppercase text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-full">
+                Pertanyaan Konsep
+              </span>
+              <h4 id="quiz-question-prompt" class="text-lg sm:text-xl font-heading font-bold text-slate-800 mt-1.5 leading-snug">
+                Berapa pecahan potongan kue yang dimakan?
+              </h4>
+            </div>
+          </div>
+
+          <div id="quiz-choices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <!-- Render via JS -->
           </div>
 
-          <!-- Feedback Box -->
-          <div id="quiz-answer-feedback" class="hidden p-4 rounded-2xl border text-sm font-semibold transition-all"></div>
+          <div id="quiz-eval-feedback" class="hidden p-4 rounded-2xl text-xs sm:text-sm font-semibold"></div>
 
-          <!-- Next Button -->
           <div class="flex justify-end pt-2">
-            <button id="btn-next-question" onclick="nextQuizStep()" class="hidden px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 flex items-center gap-2">
-              <span>Lanjut Soal Berikutnya</span> ➔
+            <button id="btn-quiz-next" onclick="nextQuizStep()" class="hidden px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-md transition text-sm">
+              Soal Berikutnya ➔
             </button>
           </div>
         </div>
 
-        <!-- Layar Hasil Skor Akhir Kuis -->
-        <div id="quiz-complete-card" class="hidden text-center py-8 space-y-4">
-          <div class="text-6xl animate-bounce">🎖️</div>
-          <h3 class="text-2xl sm:text-3xl font-heading font-black text-indigo-950">
-            Selamat, Pahlawan Energi Terbarukan!
+        <div id="quiz-complete-box" class="hidden text-center py-8 space-y-4">
+          <div class="text-6xl animate-bounce">🏆</div>
+          <h3 class="text-2xl sm:text-3xl font-heading font-black text-amber-950">
+            Hebat! Kamu Resmi Menjadi Koki Pecahan Bintang 5!
           </h3>
-          <p class="text-slate-600 text-sm sm:text-base max-w-md mx-auto">
-            Kamu berhasil menyelesaikan seluruh investigasi sains IPAS dengan sangat cemerlang!
+          <p class="text-slate-600 text-sm max-w-md mx-auto">
+            Kamu menguasai pecahan sederhana dengan sangat baik. Chef Kiko bangga padamu!
           </p>
-          <div class="p-4 bg-indigo-50 rounded-3xl inline-block border-2 border-indigo-200">
-            <p class="text-xs font-bold text-indigo-700 uppercase">Skor Kamu</p>
-            <p id="quiz-score-display" class="text-5xl font-heading font-black text-indigo-600">100</p>
+          <div class="p-4 bg-amber-50 rounded-3xl inline-block border-2 border-amber-300">
+            <p class="text-xs font-bold text-amber-800 uppercase">Skor Lisensi Kamu</p>
+            <p id="quiz-final-score" class="text-5xl font-heading font-black text-amber-600">100</p>
           </div>
           <div>
-            <button onclick="restartQuizGame()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md transition">
-              Mainkan Kuis Lagi
+            <button onclick="restartQuiz()" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow-md transition">
+              Coba Ulang Kuis
             </button>
           </div>
         </div>
@@ -754,791 +960,984 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- SECTION 4: LAB MINI PROYEK (MEMBUAT KINCIR ANGIN KERTAS) -->
+    <!-- TAB 6: DIY PROYEK & LKS -->
     <!-- ========================================================================= -->
     <section id="section-proyek" class="space-y-6 hidden">
       
-      <!-- Proyek Header Banner -->
-      <div class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="w-full bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="space-y-2 max-w-2xl">
           <span class="bg-white/20 text-teal-100 text-xs font-bold px-3 py-1 rounded-full uppercase">
-            🔬 Proyek Praktikum Siswa Kreatif
+            🎨 Proyek Praktikum Kreatif
           </span>
           <h2 class="text-2xl sm:text-3xl font-heading font-bold">
-            Virtual Lab: Merakit Kincir Angin Kertas Mini
+            Membuat Alat Peraga "Piring Pecahan Putar" 🍽️✂️
           </h2>
-          <p class="text-teal-100 text-sm leading-relaxed">
-            Sebelum membuat secara nyata di sekolah bersama guru atau di rumah, uji coba dulu cara perakitannya langkah demi langkah di simulator perakitan ini!
+          <p class="text-teal-100 text-xs sm:text-sm leading-relaxed">
+            Praktikkan konsep pecahan di rumah atau sekolah bersama teman menggunakan 2 piring kertas bekas!
           </p>
         </div>
-        <div class="text-6xl p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 animate-float">
-          🌀✂️
+        <div class="text-6xl p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 animate-bob">
+          🍽️✂️
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- Simulator Perakitan Kincir Virtual (7 Kolom) -->
-        <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-xl border-4 border-teal-100 space-y-5">
-          <div class="flex items-center justify-between border-b pb-3">
-            <h3 class="font-heading font-bold text-lg text-teal-950 flex items-center gap-2">
-              <i data-lucide="wrench" class="w-5 h-5 text-teal-600"></i>
-              Meja Perakitan Virtual
-            </h3>
-            <span id="pinwheel-step-badge" class="text-xs bg-teal-100 text-teal-800 font-bold px-3 py-1 rounded-full">
-              Langkah 1 dari 4
-            </span>
-          </div>
-
-          <!-- Meja Display Kincir Beranimasi -->
-          <div class="relative w-full h-72 bg-gradient-to-b from-slate-50 to-slate-100 rounded-3xl border-2 border-slate-300 flex flex-col items-center justify-center overflow-hidden">
-            
-            <!-- Kincir Kertas Visual -->
-            <div class="relative flex flex-col items-center">
-              
-              <!-- Baling-Baling Kertas -->
-              <div id="pinwheel-head" class="text-7xl transition-transform duration-500 filter drop-shadow-md select-none">
-                📄
-              </div>
-              
-              <!-- Gagang Sedotan / Sumpit -->
-              <div id="pinwheel-stick" class="w-3 h-28 bg-amber-600 rounded-b-md shadow-md -mt-2"></div>
-
-            </div>
-
-            <!-- Angin Uji Coba Kipas Virtual -->
-            <div id="virtual-fan-wind" class="hidden absolute left-6 top-8 text-3xl animate-pulse">
-              💨💨💨
-            </div>
-
-            <div id="pinwheel-instruction" class="absolute bottom-3 bg-slate-900/80 backdrop-blur-md text-white text-xs font-semibold px-4 py-1.5 rounded-full text-center">
-              Langkah 1: Siapkan kertas origami persegi dan potong diagonal ke arah tengah!
-            </div>
-          </div>
-
-          <!-- Tombol Langkah Perakitan -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button id="pw-step-1" onclick="executePinwheelStep(1)" class="p-3 bg-teal-50 hover:bg-teal-100 border-2 border-teal-400 rounded-2xl text-left transition active:scale-95">
-              <span class="text-xl">✂️</span>
-              <p class="font-bold text-xs text-teal-950 mt-1">1. Gunting Sudut</p>
-            </button>
-            <button id="pw-step-2" onclick="executePinwheelStep(2)" class="p-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-left opacity-50 cursor-not-allowed transition" disabled>
-              <span class="text-xl">📌</span>
-              <p class="font-bold text-xs text-slate-800 mt-1">2. Lipat ke Tengah</p>
-            </button>
-            <button id="pw-step-3" onclick="executePinwheelStep(3)" class="p-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-left opacity-50 cursor-not-allowed transition" disabled>
-              <span class="text-xl">🥢</span>
-              <p class="font-bold text-xs text-slate-800 mt-1">3. Pasang Gagang</p>
-            </button>
-            <button id="pw-step-4" onclick="executePinwheelStep(4)" class="p-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-left opacity-50 cursor-not-allowed transition" disabled>
-              <span class="text-xl">💨</span>
-              <p class="font-bold text-xs text-slate-800 mt-1">4. Uji Angin!</p>
-            </button>
-          </div>
-
-        </div>
-
-        <!-- Panduan Nyata & Lembar Observasi (5 Kolom) -->
-        <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-xl border-4 border-emerald-100 space-y-4">
-          <h3 class="font-heading font-bold text-lg text-emerald-950 flex items-center gap-2">
-            <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-600"></i>
-            Panduan Proyek Nyata di Rumah / Sekolah
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-xl border-4 border-teal-100 space-y-4">
+          <h3 class="font-heading font-bold text-lg text-teal-950 border-b pb-3">
+            4 Langkah Mudah Merakit Piring Pecahan Putar
           </h3>
 
-          <div class="space-y-2 text-xs sm:text-sm text-slate-700">
-            <p class="font-bold text-emerald-800">Alat & Bahan Sederhana:</p>
-            <ul class="list-disc list-inside space-y-1 bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200">
-              <li>1 lembar kertas origami warna cerah (15x15 cm)</li>
-              <li>1 buah sedotan plastik bekas atau sumpit kayu</li>
-              <li>1 buah jarum pentul / push pin (minta bantuan orang dewasa)</li>
-              <li>Gunting anak ujung tumpul & penggaris</li>
-            </ul>
-          </div>
-
-          <div class="space-y-2">
-            <p class="font-bold text-emerald-800 text-xs sm:text-sm">Pertanyaan Pengamatan Ilmiah:</p>
-            <div class="space-y-2 text-xs text-slate-700">
-              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <b>1.</b> Apa yang menyebabkan baling-baling kincir kertas dapat berputar?
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 p-3 bg-teal-50/70 rounded-2xl border border-teal-200">
+              <span class="w-7 h-7 rounded-full bg-teal-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0 mt-0.5">1</span>
+              <div>
+                <b class="text-xs sm:text-sm text-teal-950">Siapkan 2 Piring Kertas Berbeda Warna:</b>
+                <p class="text-xs text-slate-600">Misalnya 1 piring berwarna kuning dan 1 piring berwarna merah.</p>
               </div>
-              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <b>2.</b> Bentuk perubahan energi apa yang terjadi pada kincir saat ditiup angin? (Energi Gerak $\rightarrow$ Energi Kinetik/Mekanis).
+            </div>
+
+            <div class="flex items-start gap-3 p-3 bg-teal-50/70 rounded-2xl border border-teal-200">
+              <span class="w-7 h-7 rounded-full bg-teal-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0 mt-0.5">2</span>
+              <div>
+                <b class="text-xs sm:text-sm text-teal-950">Gunting 1 Garis Jari-Jari ke Pusat:</b>
+                <p class="text-xs text-slate-600">Gunting dari bagian tepi luar piring lurus menuju tepat ke titik tengah pada kedua piring.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 bg-teal-50/70 rounded-2xl border border-teal-200">
+              <span class="w-7 h-7 rounded-full bg-teal-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0 mt-0.5">3</span>
+              <div>
+                <b class="text-xs sm:text-sm text-teal-950">Selipkan Celah Potongan:</b>
+                <p class="text-xs text-slate-600">Gabungkan kedua piring lewat celah guntingan tadi hingga bisa diputar saling menutupi!</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 bg-emerald-100/70 rounded-2xl border border-emerald-300">
+              <span class="w-7 h-7 rounded-full bg-emerald-600 text-white font-black flex items-center justify-center text-xs flex-shrink-0 mt-0.5">4</span>
+              <div>
+                <b class="text-xs sm:text-sm text-emerald-950">Putar & Tunjukkan Nilai Pecahannya! 🎉</b>
+                <p class="text-xs text-slate-700">Putar untuk memperlihatkan 1/4 merah, 1/2 merah, atau 3/4 merah di depan kelas!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-xl border-4 border-amber-200 space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <h3 class="font-heading font-bold text-lg text-amber-950 border-b pb-3">
+              Lembar Kerja Siswa (LKS) Siap Cetak
+            </h3>
+
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Unduh lembar latihan portofolio matematika pecahan untuk dicetak dan dikerjakan murid di kelas.
+            </p>
+
+            <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-slate-700 space-y-1.5">
+              <div class="flex items-center gap-2 font-bold text-amber-900">
+                ✓ 5 Soal Latihan Mewarnai Pecahan
+              </div>
+              <div class="flex items-center gap-2 font-bold text-amber-900">
+                ✓ Tabel Pecahan Senilai Sederhana
+              </div>
+              <div class="flex items-center gap-2 font-bold text-amber-900">
+                ✓ Kolom Paraf Guru & Orang Tua
               </div>
             </div>
           </div>
 
-          <!-- Tombol Cetak / Simpan Worksheet -->
-          <button onclick="downloadPinwheelWorksheet()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm">
-            <i data-lucide="download" class="w-4 h-4"></i>
-            <span>Simpan Lembar Kerja Siswa (Worksheet)</span>
+          <button onclick="downloadWorksheetTxt()" class="w-full py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-heading font-black rounded-2xl shadow-md transition flex items-center justify-center gap-2 text-sm transform active:scale-95">
+            📥 Unduh LKS Matematika (.txt)
           </button>
         </div>
-
       </div>
 
     </section>
 
   </main>
 
-  <!-- MODAL PESAN EDUKASI RAMAH ANAK -->
-  <div id="general-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 shadow-2xl border-4 border-amber-300 text-center space-y-4">
-      <div id="modal-icon-badge" class="text-6xl animate-bounce">⚡</div>
-      <h3 id="modal-title-text" class="text-2xl font-heading font-black text-slate-800">Info Hebat Sains</h3>
-      <p id="modal-desc-text" class="text-sm text-slate-600 leading-relaxed">
-        Deskripsi pesan.
-      </p>
-      <button onclick="closeGeneralModal()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-md transition">
-        Keren, Aku Paham! 👍
-      </button>
-    </div>
-  </div>
-
-  <!-- MODAL DETAIL 4 SUMBER ENERGI -->
-  <div id="detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-4 border-emerald-300 space-y-4">
-      <div class="flex items-start justify-between">
-        <div class="flex items-center gap-3">
-          <div id="detail-icon" class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center text-3xl">
-            ☀️
-          </div>
-          <div>
-            <span id="detail-tag" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
-              Energi Terbarukan
-            </span>
-            <h3 id="detail-title" class="text-xl font-heading font-bold text-slate-800">Energi Surya</h3>
-          </div>
-        </div>
-        <button onclick="closeDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center">
-          ✕
-        </button>
-      </div>
-
-      <div class="space-y-3 text-sm text-slate-600 leading-relaxed">
-        <p id="detail-explanation">Penjelasan lengkap di sini.</p>
-        <div id="detail-example" class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs font-semibold text-emerald-900">
-          💡 Contoh penerapan di Indonesia...
-        </div>
-      </div>
-
-      <button onclick="closeDetailModal()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow transition">
-        Tutup Penjelasan
-      </button>
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT LOGIKA EDUKASI LENGKAP -->
+  <!-- JAVASCRIPT PROGRAM UTAMA -->
   <script>
-    // State Aplikasi
     const appState = {
-      ecoPoints: 0,
-      currentTab: 'materi',
-      selectedSortCard: null,
-      sortedCount: {
-        renewable: 0,
-        nonRenewable: 0
+      xp: 0,
+      activeNav: 'akademi',
+      
+      pizzaDenom: 4,
+      pizzaSlicesEaten: [false, false, false, false],
+      showToppings: true,
+
+      isFairCut: true,
+      splitStates: {
+        apple: true,
+        melon: true,
+        martabak: true
       },
-      quizIndex: 0,
-      quizScore: 0,
-      pinwheelStep: 1
+
+      chocoTotal: 6,
+      chocoEaten: [false, false, false, false, false, false],
+
+      gameIdx: 0,
+      gameStreak: 0,
+      gameTargetDenom: 4,
+      gameTargetNum: 2,
+      gameCustomerSlices: [false, false, false, false],
+
+      quizIdx: 0,
+      quizScore: 0
     };
 
-    function addPoints(pts) {
-      appState.ecoPoints += pts;
-      document.getElementById('player-score').textContent = `${appState.ecoPoints} W`;
+    function addXP(val) {
+      appState.xp += val;
+      document.getElementById('player-xp').textContent = `${appState.xp} XP`;
     }
 
-    // Modal Manager
-    function openGeneralModal(title, desc, icon = '💡') {
-      document.getElementById('modal-title-text').textContent = title;
-      document.getElementById('modal-desc-text').textContent = desc;
-      document.getElementById('modal-icon-badge').textContent = icon;
-      document.getElementById('general-modal').classList.remove('hidden');
-      playSound('spark');
-    }
-
-    function closeGeneralModal() {
-      document.getElementById('general-modal').classList.add('hidden');
-      playSound('click');
-    }
-
-    // Tab Switcher
-    function switchMainTab(tabName) {
-      playSound('click');
-      appState.currentTab = tabName;
-      const allTabs = ['materi', 'simulator', 'games', 'proyek'];
-      allTabs.forEach(t => {
+    function switchNavTab(tab) {
+      playSound('pop');
+      appState.activeNav = tab;
+      const tabs = ['akademi', 'pizza', 'choco', 'senilai', 'games', 'quiz', 'proyek'];
+      tabs.forEach(t => {
         const sec = document.getElementById(`section-${t}`);
-        const btn = document.getElementById(`nav-${t}`);
-        if (t === tabName) {
+        const btn = document.getElementById(`nav-btn-${t}`);
+        if (t === tab) {
           sec.classList.remove('hidden');
-          btn.className = "tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 bg-white text-emerald-800 shadow-sm font-bold";
+          btn.className = "tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 bg-white text-amber-900 shadow-sm font-bold";
         } else {
           sec.classList.add('hidden');
-          btn.className = "tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 text-slate-600 hover:text-emerald-800 hover:bg-white/60 font-bold";
+          btn.className = "tab-btn px-3 sm:px-4 py-2 rounded-xl transition duration-200 flex items-center gap-1.5 text-slate-600 hover:text-amber-900 hover:bg-white/60 font-bold";
         }
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Maskot Volt Interaksi
-    const voltQuotes = [
-      "\"Tahukah kamu? Energi matahari yang sampai ke bumi selama 1 jam cukup untuk kebutuhan listrik seluruh dunia selama 1 tahun!\"",
-      "\"Wuuusshh! Baling-baling turbin angin di Sidrap, Sulawesi Selatan bisa menghasilkan listrik untuk ribuan rumah!\"",
-      "\"Energi air tidak menghasilkan asap hitam sama sekali, sungguh sahabat sejati ikan dan sungai!\"",
-      "\"Matikan lampu jika ruangan sudah terang ya kawan, menghemat energi juga bagian dari pahlawan bumi!\""
-    ];
-    let voltIdx = 0;
-    function pokeVolt() {
-      playSound('spark');
-      voltIdx = (voltIdx + 1) % voltQuotes.length;
-      document.getElementById('volt-bubble').textContent = voltQuotes[voltIdx];
-      addPoints(10);
+    // ==========================================
+    // AKADEMI KONSEP
+    // ==========================================
+    function setFairLabMode(isFair) {
+      appState.isFairCut = isFair;
+      playSound(isFair ? 'success' : 'wrong');
+      const bFair = document.getElementById('btn-fair-cut');
+      const bUnfair = document.getElementById('btn-unfair-cut');
+      const feedback = document.getElementById('fair-lab-feedback');
+
+      if (isFair) {
+        bFair.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 text-white shadow-sm";
+        bUnfair.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-700 border border-slate-300 hover:bg-slate-50";
+        feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-100 text-emerald-950 border border-emerald-300";
+        feedback.innerHTML = "✅ <b>Sah Jadi Pecahan!</b> Kedua potongan ukurannya persis sama besar (masing-masing 1/2 bagian adil).";
+        addXP(5);
+      } else {
+        bUnfair.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-rose-600 text-white shadow-sm";
+        bFair.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-700 border border-slate-300 hover:bg-slate-50";
+        feedback.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-100 text-rose-950 border border-rose-300";
+        feedback.innerHTML = "❌ <b>Bukan Pecahan yang Sah!</b> Satu bagian besar sekali dan yang satu terlalu kecil (tidak adil). Pecahan WAJIB sama besar!";
+      }
+      renderFairLabVisual();
     }
 
-    // Detail 4 Sumber Energi
-    const energyInfo = {
-      surya: {
-        title: "Energi Surya (Matahari)",
-        icon: "☀️",
-        tag: "Terbarukan & Abadi",
-        desc: "Matahari memancarkan foton energi cahaya yang diserap oleh panel surya (silikon). Foton ini memicu aliran elektron sehingga menghasilkan arus listrik DC yang diubah menjadi AC untuk kulkas, TV, dan lampu rumah kita.",
-        example: "☀️ Contoh Nyata: Pembangkit Listrik Tenaga Surya (PLTS) Terapung Cirata di Jawa Barat, salah satu yang terbesar di Asia Tenggara!"
-      },
-      angin: {
-        title: "Energi Angin (Bayu)",
-        icon: "💨",
-        tag: "Bebas Emisi Gas",
-        desc: "Angin terbentuk dari perbedaan suhu dan tekanan udara. Tiupan angin memutar baling-baling aerodinamis kincir. Putaran poros ini memutar generator listrik di dalam turbin sehingga daya listrik tercipta secara terus menerus.",
-        example: "💨 Contoh Nyata: Kebun Angin PLTB Sidrap dan Jeneponto di Sulawesi Selatan dengan tiang turbin raksasa setinggi gedung 30 lantai!"
-      },
-      air: {
-        title: "Energi Air (Hidro)",
-        icon: "🌊",
-        tag: "Aliran Tanpa Henti",
-        desc: "Air yang dibendung di waduk memiliki energi potensial tinggi. Saat pintu air dibuka, air mengalir deras dengan energi kinetik hebat memutar turbin air yang terhubung ke generator listrik raksasa.",
-        example: "🌊 Contoh Nyata: PLTA Jatiluhur dan PLTA Asahan yang mengalirkan listrik bersih ke jutaan rumah warga."
-      },
-      biomassa: {
-        title: "Panas Bumi (Geotermal) & Biomassa",
-        icon: "🌋",
-        tag: "Energi Perut Bumi & Nabati",
-        desc: "Indonesia berada di jalur gunung api (*Ring of Fire*). Uap panas bertekanan tinggi dari dalam perut bumi diambil untuk memutar turbin listrik. Sedangkan biomassa memanfaatkan limbah pertanian dan kotoran ternak menjadi gas bio yang bisa menyalakan kompor.",
-        example: "🌋 Contoh Nyata: Pembangkit Listrik Panas Bumi (PLTP) Kamojang dan Dieng yang ramah alam tanpa asap batu bara."
+    function renderFairLabVisual() {
+      const container = document.getElementById('fair-lab-visual');
+      if (appState.isFairCut) {
+        container.innerHTML = `
+          <div class="flex items-center gap-2">
+            <div class="w-16 h-20 rounded-l-2xl bg-gradient-to-r from-amber-400 to-amber-500 border-2 border-amber-600 flex flex-col items-center justify-center text-white font-heading font-black text-xs shadow-sm">
+              <span>🍰 1/2</span>
+              <span class="text-[9px]">Sama Besar</span>
+            </div>
+            <div class="w-16 h-20 rounded-r-2xl bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-600 flex flex-col items-center justify-center text-white font-heading font-black text-xs shadow-sm">
+              <span>🍰 1/2</span>
+              <span class="text-[9px]">Sama Besar</span>
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="flex items-center gap-2">
+            <div class="w-24 h-20 rounded-l-2xl bg-gradient-to-r from-amber-400 to-amber-500 border-2 border-amber-600 flex flex-col items-center justify-center text-white font-heading font-black text-xs shadow-sm">
+              <span>🍰 Raksasa</span>
+              <span class="text-[9px]">(Bukan 1/2)</span>
+            </div>
+            <div class="w-8 h-20 rounded-r-2xl bg-gradient-to-r from-amber-500 to-amber-600 border-2 border-amber-600 flex flex-col items-center justify-center text-white font-heading font-black text-xs shadow-sm">
+              <span>🍰</span>
+              <span class="text-[8px]">Mini</span>
+            </div>
+          </div>
+        `;
       }
+    }
+
+    function inspectFractionPart(part) {
+      playSound('pop');
+      const boxN = document.getElementById('box-numerator');
+      const boxD = document.getElementById('box-denominator');
+      const infoCard = document.getElementById('anatomy-card-info');
+      const icon = document.getElementById('anatomy-icon');
+      const tag = document.getElementById('anatomy-tag');
+      const title = document.getElementById('anatomy-title');
+      const desc = document.getElementById('anatomy-desc');
+      const tip = document.getElementById('anatomy-tip');
+
+      if (part === 'numerator') {
+        boxN.classList.add('ring-4', 'ring-rose-400', 'scale-105');
+        boxD.classList.remove('ring-4', 'ring-sky-400', 'scale-105');
+
+        infoCard.className = "p-6 rounded-3xl bg-rose-50 border-3 border-rose-300 space-y-3 transition duration-300";
+        icon.textContent = "🍓";
+        tag.className = "text-[10px] font-black uppercase text-rose-700 bg-rose-200/80 px-2.5 py-0.5 rounded-full";
+        tag.textContent = "Sedang Dipelajari: Angka Atas";
+        title.className = "font-heading font-black text-xl text-rose-950";
+        title.textContent = "PEMBILANG (Angka 3)";
+        desc.textContent = "Pembilang menunjukkan berapa banyak potongan yang sedang kita bicarakan, diambil, diwarnai, atau dimakan. Pada pizza, jika ada 3 potong yang diambil, angka 3 diletakkan di atas!";
+        tip.className = "p-3 bg-white rounded-2xl border border-rose-200 text-xs font-semibold text-rose-900";
+        tip.innerHTML = "💡 <b>Tips Ingat Chef Kiko:</b> Ingat kata <b>PEM</b>bilang = <b>PEM</b>akan (yang mengambil potongan).";
+        addXP(3);
+      } else {
+        boxD.classList.add('ring-4', 'ring-sky-400', 'scale-105');
+        boxN.classList.remove('ring-4', 'ring-rose-400', 'scale-105');
+
+        infoCard.className = "p-6 rounded-3xl bg-sky-50 border-3 border-sky-300 space-y-3 transition duration-300";
+        icon.textContent = "📦";
+        tag.className = "text-[10px] font-black uppercase text-sky-700 bg-sky-200/80 px-2.5 py-0.5 rounded-full";
+        tag.textContent = "Sedang Dipelajari: Angka Bawah";
+        title.className = "font-heading font-black text-xl text-sky-950";
+        title.textContent = "PENYEBUT (Angka 4)";
+        desc.textContent = "Penyebut menunjukkan jumlah TOTAL SEMUA potongan sama besar dari benda utuh tersebut sejak awal. Pada pizza ini, loyang dipotong rata menjadi 4 bagian, sehingga penyebutnya adalah 4.";
+        tip.className = "p-3 bg-white rounded-2xl border border-sky-200 text-xs font-semibold text-sky-900";
+        tip.innerHTML = "💡 <b>Tips Ingat Chef Kiko:</b> Ingat kata <b>PENYEBUT</b> = <b>P</b>aling <b>B</b>awah (total bagian yang ada).";
+        addXP(3);
+      }
+    }
+
+    function toggleFoodSplit(type) {
+      playSound('slice');
+      appState.splitStates[type] = !appState.splitStates[type];
+      renderFoodVisuals();
+      addXP(2);
+    }
+
+    function renderFoodVisuals() {
+      const appleContainer = document.getElementById('real-apple-visual');
+      if (appState.splitStates.apple) {
+        appleContainer.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="text-4xl animate-bounce">🍎</div>
+            <div class="text-xs font-bold text-rose-600 bg-white px-2 py-1 rounded-lg border border-rose-300">1/2 Bagian</div>
+            <div class="text-4xl animate-bounce" style="animation-delay: 0.15s;">🍎</div>
+            <div class="text-xs font-bold text-rose-600 bg-white px-2 py-1 rounded-lg border border-rose-300">1/2 Bagian</div>
+          </div>
+        `;
+      } else {
+        appleContainer.innerHTML = `
+          <div class="flex flex-col items-center">
+            <div class="text-6xl">🍎</div>
+            <span class="text-xs font-bold text-slate-500 mt-1">1 Apel Utuh (2/2)</span>
+          </div>
+        `;
+      }
+
+      const melonContainer = document.getElementById('real-melon-visual');
+      if (appState.splitStates.melon) {
+        melonContainer.innerHTML = `
+          <div class="grid grid-cols-2 gap-2 text-2xl">
+            <div class="bg-white p-1 rounded-xl shadow-xs border border-emerald-300 flex items-center justify-center">🍉 <span class="text-[10px] font-bold ml-1">1/4</span></div>
+            <div class="bg-white p-1 rounded-xl shadow-xs border border-emerald-300 flex items-center justify-center">🍉 <span class="text-[10px] font-bold ml-1">1/4</span></div>
+            <div class="bg-white p-1 rounded-xl shadow-xs border border-emerald-300 flex items-center justify-center">🍉 <span class="text-[10px] font-bold ml-1">1/4</span></div>
+            <div class="bg-white p-1 rounded-xl shadow-xs border border-emerald-300 flex items-center justify-center">🍉 <span class="text-[10px] font-bold ml-1">1/4</span></div>
+          </div>
+        `;
+      } else {
+        melonContainer.innerHTML = `
+          <div class="flex flex-col items-center">
+            <div class="text-6xl">🍉</div>
+            <span class="text-xs font-bold text-slate-500 mt-1">1 Semangka Utuh (4/4)</span>
+          </div>
+        `;
+      }
+
+      const martabakContainer = document.getElementById('real-martabak-visual');
+      if (appState.splitStates.martabak) {
+        martabakContainer.innerHTML = `
+          <div class="flex items-center gap-1.5 flex-wrap justify-center max-w-[190px]">
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+            <div class="w-7 h-7 rounded-lg bg-amber-400 text-amber-950 font-black text-[9px] flex items-center justify-center shadow-xs">1/8</div>
+          </div>
+        `;
+      } else {
+        martabakContainer.innerHTML = `
+          <div class="flex flex-col items-center">
+            <div class="text-6xl">🥞</div>
+            <span class="text-xs font-bold text-slate-500 mt-1">1 Martabak Utuh (8/8)</span>
+          </div>
+        `;
+      }
+    }
+
+    // ==========================================
+    // MEJA POTONG PIZZA (SVG ENGINE)
+    // ==========================================
+    function changePizzaDenominator(denom) {
+      playSound('pop');
+      appState.pizzaDenom = denom;
+      appState.pizzaSlicesEaten = new Array(denom).fill(false);
+
+      [2, 3, 4, 6, 8].forEach(d => {
+        const b = document.getElementById(`btn-slice-${d}`);
+        if (d === denom) {
+          b.className = "px-3.5 py-1.5 rounded-xl font-heading font-black text-xs sm:text-sm border-2 transition bg-orange-500 text-white border-orange-500 shadow-sm";
+        } else {
+          b.className = "px-3.5 py-1.5 rounded-xl font-heading font-black text-xs sm:text-sm border-2 transition bg-white text-slate-700 border-slate-200 hover:border-amber-400";
+        }
+      });
+
+      renderInteractivePizza();
+      updatePizzaMetrics();
+    }
+
+    function toggleToppingMode() {
+      playSound('pop');
+      appState.showToppings = !appState.showToppings;
+      const b = document.getElementById('btn-toggle-topping');
+      b.innerHTML = appState.showToppings 
+        ? `<span>🍕 Topping: Pepperoni & Basil</span>` 
+        : `<span>🧀 Topping: Polos (Keju Leleh)</span>`;
+      renderInteractivePizza();
+    }
+
+    function eatAllSlices() {
+      playSound('crunch');
+      appState.pizzaSlicesEaten = appState.pizzaSlicesEaten.map(() => true);
+      renderInteractivePizza();
+      updatePizzaMetrics();
+      addXP(5);
+    }
+
+    function restoreAllSlices() {
+      playSound('restore');
+      appState.pizzaSlicesEaten = appState.pizzaSlicesEaten.map(() => false);
+      renderInteractivePizza();
+      updatePizzaMetrics();
+      addXP(5);
+    }
+
+    function togglePizzaSlice(idx) {
+      const willBeEaten = !appState.pizzaSlicesEaten[idx];
+      appState.pizzaSlicesEaten[idx] = willBeEaten;
+
+      if (willBeEaten) {
+        playSound('crunch');
+        addXP(3);
+      } else {
+        playSound('restore');
+        addXP(2);
+      }
+
+      renderInteractivePizza();
+      updatePizzaMetrics();
+    }
+
+    function createSlicePath(cx, cy, r, startAngle, endAngle) {
+      const startRad = (startAngle * Math.PI) / 180;
+      const endRad = (endAngle * Math.PI) / 180;
+      const x1 = cx + r * Math.cos(startRad);
+      const y1 = cy + r * Math.sin(startRad);
+      const x2 = cx + r * Math.cos(endRad);
+      const y2 = cy + r * Math.sin(endRad);
+      const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+      return `M ${cx},${cy} L ${x1},${y1} A ${r},${r} 0 ${largeArc},1 ${x2},${y2} Z`;
+    }
+
+    function renderInteractivePizza() {
+      const svg = document.getElementById('pizza-interactive-svg');
+      svg.innerHTML = '';
+
+      const cx = 110, cy = 110, radius = 95;
+      const total = appState.pizzaDenom;
+      const anglePerSlice = 360 / total;
+
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `
+        <radialGradient id="cheeseGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fef08a" />
+          <stop offset="60%" stop-color="#f59e0b" />
+          <stop offset="90%" stop-color="#ea580c" />
+          <stop offset="100%" stop-color="#b45309" />
+        </radialGradient>
+        <radialGradient id="crustGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="82%" stop-color="#d97706" />
+          <stop offset="96%" stop-color="#92400e" />
+          <stop offset="100%" stop-color="#78350f" />
+        </radialGradient>
+        <radialGradient id="panGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#f1f5f9" />
+          <stop offset="70%" stop-color="#cbd5e1" />
+          <stop offset="100%" stop-color="#94a3b8" />
+        </radialGradient>
+      `;
+      svg.appendChild(defs);
+
+      for (let i = 0; i < total; i++) {
+        const startAngle = i * anglePerSlice;
+        const endAngle = (i + 1) * anglePerSlice;
+        const isEaten = appState.pizzaSlicesEaten[i];
+
+        const gSlot = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        gSlot.className = "slice-interactive";
+        gSlot.onclick = () => togglePizzaSlice(i);
+
+        // Dasar loyang
+        const panPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        panPath.setAttribute('d', createSlicePath(cx, cy, radius, startAngle, endAngle));
+        panPath.setAttribute('fill', 'url(#panGrad)');
+        panPath.setAttribute('stroke', '#64748b');
+        panPath.setAttribute('stroke-width', '1.5');
+        panPath.setAttribute('stroke-dasharray', '3 2');
+        gSlot.appendChild(panPath);
+
+        const midAngle = (startAngle + endAngle) / 2;
+        const midRad = (midAngle * Math.PI) / 180;
+
+        if (isEaten) {
+          // Remahan
+          const crumbDistances = [35, 55, 75];
+          crumbDistances.forEach((cd, cIdx) => {
+            const spreadAngle = (midAngle + (cIdx % 2 === 0 ? -4 : 4)) * (Math.PI / 180);
+            const crX = cx + cd * Math.cos(spreadAngle);
+            const crY = cy + cd * Math.sin(spreadAngle);
+            const crumb = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            crumb.setAttribute('cx', crX);
+            crumb.setAttribute('cy', crY);
+            crumb.setAttribute('r', (cIdx % 2 === 0 ? 2 : 1.5).toString());
+            crumb.setAttribute('fill', '#b45309');
+            crumb.setAttribute('opacity', '0.7');
+            gSlot.appendChild(crumb);
+          });
+
+          // Badge Dimakan
+          const badgeX = cx + 52 * Math.cos(midRad);
+          const badgeY = cy + 52 * Math.sin(midRad);
+
+          const badgeCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          badgeCircle.setAttribute('cx', badgeX);
+          badgeCircle.setAttribute('cy', badgeY);
+          badgeCircle.setAttribute('r', '13');
+          badgeCircle.setAttribute('fill', '#fee2e2');
+          badgeCircle.setAttribute('stroke', '#f87171');
+          badgeCircle.setAttribute('stroke-width', '2');
+          gSlot.appendChild(badgeCircle);
+
+          const badgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          badgeText.setAttribute('x', badgeX);
+          badgeText.setAttribute('y', badgeY + 4);
+          badgeText.setAttribute('text-anchor', 'middle');
+          badgeText.setAttribute('font-size', '11');
+          badgeText.setAttribute('font-weight', 'bold');
+          badgeText.setAttribute('fill', '#dc2626');
+          badgeText.setAttribute('transform', `rotate(90, ${badgeX}, ${badgeY})`);
+          badgeText.textContent = "🍴";
+          gSlot.appendChild(badgeText);
+
+        } else {
+          // Roti utuh
+          const crustPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          crustPath.setAttribute('d', createSlicePath(cx, cy, radius, startAngle, endAngle));
+          crustPath.setAttribute('fill', 'url(#crustGrad)');
+          crustPath.setAttribute('stroke', '#78350f');
+          crustPath.setAttribute('stroke-width', '2.5');
+          gSlot.appendChild(crustPath);
+
+          // Keju
+          const cheesePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          cheesePath.setAttribute('d', createSlicePath(cx, cy, radius - 10, startAngle, endAngle));
+          cheesePath.setAttribute('fill', 'url(#cheeseGrad)');
+          cheesePath.setAttribute('stroke', '#ea580c');
+          cheesePath.setAttribute('stroke-width', '1.5');
+          gSlot.appendChild(cheesePath);
+
+          // Topping
+          if (appState.showToppings) {
+            const pepDist = total >= 6 ? 50 : 54;
+            const px = cx + pepDist * Math.cos(midRad);
+            const py = cy + pepDist * Math.sin(midRad);
+
+            const pep = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            pep.setAttribute('cx', px);
+            pep.setAttribute('cy', py);
+            pep.setAttribute('r', total >= 6 ? '7.5' : '10.5');
+            pep.setAttribute('fill', '#dc2626');
+            pep.setAttribute('stroke', '#991b1b');
+            pep.setAttribute('stroke-width', '2');
+            gSlot.appendChild(pep);
+
+            const speck = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            speck.setAttribute('cx', px - 2);
+            speck.setAttribute('cy', py - 2);
+            speck.setAttribute('r', '1.5');
+            speck.setAttribute('fill', '#fca5a5');
+            gSlot.appendChild(speck);
+
+            if (total <= 6) {
+              const basilDist = pepDist - 22;
+              const bx = cx + basilDist * Math.cos(midRad + 0.1);
+              const by = cy + basilDist * Math.sin(midRad + 0.1);
+              const basil = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+              basil.setAttribute('cx', bx);
+              basil.setAttribute('cy', by);
+              basil.setAttribute('rx', '4.5');
+              basil.setAttribute('ry', '2.5');
+              basil.setAttribute('fill', '#15803d');
+              basil.setAttribute('stroke', '#166534');
+              basil.setAttribute('stroke-width', '1');
+              basil.setAttribute('transform', `rotate(${(midAngle)}, ${bx}, ${by})`);
+              gSlot.appendChild(basil);
+            }
+          }
+
+          // Label 1/N
+          const textDist = 32;
+          const tx = cx + textDist * Math.cos(midRad);
+          const ty = cy + textDist * Math.sin(midRad);
+
+          const tagBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          tagBg.setAttribute('cx', tx);
+          tagBg.setAttribute('cy', ty);
+          tagBg.setAttribute('r', '9');
+          tagBg.setAttribute('fill', '#ffffff');
+          tagBg.setAttribute('stroke', '#78350f');
+          tagBg.setAttribute('stroke-width', '1.5');
+          gSlot.appendChild(tagBg);
+
+          const tagText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          tagText.setAttribute('x', tx);
+          tagText.setAttribute('y', ty + 3);
+          tagText.setAttribute('text-anchor', 'middle');
+          tagText.setAttribute('font-size', '8');
+          tagText.setAttribute('font-weight', '900');
+          tagText.setAttribute('fill', '#78350f');
+          tagText.setAttribute('transform', `rotate(90, ${tx}, ${ty})`);
+          tagText.textContent = `1/${total}`;
+          gSlot.appendChild(tagText);
+        }
+
+        svg.appendChild(gSlot);
+      }
+    }
+
+    const wordsMap = {
+      0: "Nol", 1: "Satu", 2: "Dua", 3: "Tiga", 4: "Empat", 5: "Lima", 6: "Enam", 7: "Tujuh", 8: "Delapan"
     };
 
-    function showEnergyDetail(type) {
-      playSound('click');
-      const data = energyInfo[type];
-      if (!data) return;
-      document.getElementById('detail-title').textContent = data.title;
-      document.getElementById('detail-icon').textContent = data.icon;
-      document.getElementById('detail-tag').textContent = data.tag;
-      document.getElementById('detail-explanation').textContent = data.desc;
-      document.getElementById('detail-example').textContent = data.example;
-      document.getElementById('detail-modal').classList.remove('hidden');
-      addPoints(5);
+    const denomWordsMap = {
+      2: "Perdua (Setengah)",
+      3: "Pertiga",
+      4: "Perempat",
+      6: "Perenam",
+      8: "Perdelapan"
+    };
+
+    function updatePizzaMetrics() {
+      const total = appState.pizzaDenom;
+      const eaten = appState.pizzaSlicesEaten.filter(v => v).length;
+      const left = total - eaten;
+
+      document.getElementById('stat-eaten-num').textContent = eaten;
+      document.getElementById('stat-eaten-denom').textContent = total;
+
+      const eatenWord = eaten === 0 ? "Nol Potong" : (eaten === 1 && total === 2 ? "Setengah" : (eaten === 1 && total === 4 ? "Seperempat" : `${wordsMap[eaten]} ${denomWordsMap[total]}`));
+      document.getElementById('stat-eaten-words').textContent = eatenWord;
+      document.getElementById('stat-eaten-detail').textContent = `${eaten} potong telah dimakan dari total ${total} potong yang sama rata.`;
+
+      document.getElementById('stat-left-num').textContent = left;
+      document.getElementById('stat-left-denom').textContent = total;
+
+      const leftWord = left === 0 ? "Habis Terjual" : (left === 1 && total === 2 ? "Setengah" : (left === 1 && total === 4 ? "Seperempat" : `${wordsMap[left]} ${denomWordsMap[total]}`));
+      document.getElementById('stat-left-words').textContent = leftWord;
+      document.getElementById('stat-left-detail').textContent = `Tersisa ${left} potong utuh di atas loyang dari total ${total} potong.`;
+
+      document.getElementById('stat-math-sum').textContent = `${eaten}/${total} + ${left}/${total} = ${total}/${total} = 1 Loyang Utuh!`;
     }
 
-    function closeDetailModal() {
-      document.getElementById('detail-modal').classList.add('hidden');
-      playSound('click');
-    }
+    // ==========================================
+    // PABRIK COKELAT
+    // ==========================================
+    function setChocoBlocks(num) {
+      playSound('pop');
+      appState.chocoTotal = num;
+      appState.chocoEaten = new Array(num).fill(false);
 
-    // Slider Perbandingan Fosil vs Terbarukan
-    function updateComparison(val) {
-      const v = parseInt(val);
-      const sky = document.getElementById('city-sky-box');
-      const badge = document.getElementById('sky-status-badge');
-      const text = document.getElementById('slider-explanation');
-      const smogIcons = document.querySelectorAll('.smog-icon');
-      const factory = document.getElementById('factory-sky');
-      const turbine = document.getElementById('turbine-sky');
-
-      if (v >= 70) {
-        // Bersih & Hijau
-        sky.style.background = "linear-gradient(180deg, #38bdf8 0%, #bae6fd 60%, #bbf7d0 100%)";
-        badge.className = "bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-md border-2 border-emerald-400 text-emerald-900 font-bold text-xs sm:text-sm flex items-center gap-2";
-        badge.innerHTML = `<span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span> Kondisi: ${v}% Energi Bersih - Udara Sehat Segar!`;
-        text.textContent = `🌿 Luar Biasa! Dengan ${v}% energi terbarukan, langit bersih biru, paru-paru sehat, dan pemanasan global dicegah!`;
-        smogIcons.forEach(el => el.classList.add('opacity-0'));
-        factory.classList.add('opacity-10');
-        turbine.classList.remove('opacity-20');
-      } else if (v >= 40) {
-        // Campuran
-        sky.style.background = "linear-gradient(180deg, #94a3b8 0%, #cbd5e1 60%, #fef08a 100%)";
-        badge.className = "bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-md border-2 border-amber-400 text-amber-900 font-bold text-xs sm:text-sm flex items-center gap-2";
-        badge.innerHTML = `<span class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></span> Kondisi: ${v}% Energi Hijau - Masih Ada Asap Polusi`;
-        text.textContent = `⚠️ Masih ada pembakaran batu bara. Langit mulai sedikit berkabut tipis karena asap cerobong pabrik.`;
-        smogIcons.forEach(el => el.classList.add('opacity-30'));
-        smogIcons.forEach(el => el.classList.remove('opacity-0'));
+      const b6 = document.getElementById('btn-choco-select-6');
+      const b8 = document.getElementById('btn-choco-select-8');
+      if (num === 6) {
+        b6.className = "px-4 py-2 rounded-xl font-bold text-xs bg-amber-500 text-amber-950 shadow-md";
+        b8.className = "px-4 py-2 rounded-xl font-bold text-xs bg-amber-900 text-amber-200 hover:bg-amber-800";
       } else {
-        // Polusi Berat Fosil
-        sky.style.background = "linear-gradient(180deg, #475569 0%, #64748b 60%, #78716c 100%)";
-        badge.className = "bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-md border-2 border-rose-500 text-rose-900 font-bold text-xs sm:text-sm flex items-center gap-2";
-        badge.innerHTML = `<span class="w-3 h-3 rounded-full bg-rose-600 animate-ping"></span> Bahaya: Udara Terkena Polusi Asap Tebal!`;
-        text.textContent = `🚨 Gawat! Lebih banyak batu bara & minyak dibakar. Langit kelabu pekat, udara sesak, dan bumi semakin panas!`;
-        smogIcons.forEach(el => {
-          el.classList.remove('opacity-0', 'opacity-30');
-          el.classList.add('opacity-90');
-        });
-        factory.classList.remove('opacity-10');
-        turbine.classList.add('opacity-20');
+        b8.className = "px-4 py-2 rounded-xl font-bold text-xs bg-amber-500 text-amber-950 shadow-md";
+        b6.className = "px-4 py-2 rounded-xl font-bold text-xs bg-amber-900 text-amber-200 hover:bg-amber-800";
       }
+      renderChocoGrid();
     }
 
-    // SANDBOX SIMULATOR: KOTA MANDIRI ENERGI
-    function calculateCityPower() {
-      const sunVal = parseInt(document.getElementById('slider-sun').value);
-      const windVal = parseInt(document.getElementById('slider-wind').value);
-      const waterVal = parseInt(document.getElementById('slider-water').value);
+    function renderChocoGrid() {
+      const grid = document.getElementById('choco-grid-container');
+      grid.innerHTML = '';
+      const total = appState.chocoTotal;
+      grid.className = total === 6 ? 'grid grid-cols-3 gap-3 w-full max-w-sm' : 'grid grid-cols-4 gap-3 w-full max-w-md';
 
-      document.getElementById('label-sun-val').textContent = `${sunVal}%`;
-      document.getElementById('label-wind-val').textContent = `${windVal}%`;
-      document.getElementById('label-water-val').textContent = `${waterVal}%`;
-      document.getElementById('sim-sun-label').textContent = `Surya: ${sunVal}%`;
-
-      // Kalkulasi Daya (Max 500 kW)
-      // Surya berkontribusi hingga 180, Angin 160, Air 160
-      const powerSurya = Math.round((sunVal / 100) * 180);
-      const powerWind = Math.round((windVal / 100) * 160);
-      const powerWater = Math.round((waterVal / 100) * 160);
-      const totalWatt = powerSurya + powerWind + powerWater;
-
-      document.getElementById('sim-total-watt').textContent = totalWatt;
-      const pct = Math.min(100, Math.round((totalWatt / 500) * 100));
-      document.getElementById('sim-watt-bar').style.width = `${pct}%`;
-
-      // Animasi Putaran Turbin mengikuti Kecepatan Angin
-      const turbineEl = document.getElementById('city-turbine-1');
-      if (windVal > 0) {
-        const speed = Math.max(0.3, (110 - windVal) / 30); // 0.3s - 3.5s
-        turbineEl.style.animation = `spinTurbine ${speed}s linear infinite`;
-      } else {
-        turbineEl.style.animation = 'none';
+      for (let i = 0; i < total; i++) {
+        const slot = document.createElement('div');
+        const isEaten = appState.chocoEaten[i];
+        slot.className = `choco-slot h-20 rounded-2xl flex flex-col items-center justify-center font-bold text-xs shadow-md border-2 ${
+          isEaten 
+            ? 'bg-amber-950/60 border-dashed border-amber-800 text-amber-700' 
+            : 'bg-gradient-to-br from-amber-700 to-amber-900 border-amber-600 text-amber-200'
+        }`;
+        slot.onclick = () => toggleChocoPiece(i);
+        slot.innerHTML = isEaten ? '<span>🍴</span><span class="text-[10px]">Digigit</span>' : `<span>🍫</span><span>1/${total}</span>`;
+        grid.appendChild(slot);
       }
-
-      // Cahaya Panel Surya
-      const p1 = document.getElementById('panel-1');
-      const p2 = document.getElementById('panel-2');
-      if (sunVal > 50) {
-        p1.textContent = "🟨";
-        p2.textContent = "🟨";
-      } else {
-        p1.textContent = "🟦";
-        p2.textContent = "🟦";
-      }
-
-      // Status Bangunan Kota
-      const hospital = document.getElementById('building-hospital');
-      const school = document.getElementById('building-school');
-      const houses = document.getElementById('building-houses');
-      const statusLabel = document.getElementById('city-light-status');
-
-      if (totalWatt >= 350) {
-        hospital.style.filter = "drop-shadow(0 0 14px #facc15)";
-        school.style.filter = "drop-shadow(0 0 14px #facc15)";
-        houses.style.filter = "drop-shadow(0 0 14px #facc15)";
-        statusLabel.textContent = "💡 Seluruh Lampu & Rumah Sakit Kota Menyala Terang!";
-        statusLabel.className = "text-[11px] font-extrabold text-emerald-800";
-      } else if (totalWatt >= 200) {
-        hospital.style.filter = "drop-shadow(0 0 10px #facc15)";
-        school.style.filter = "none";
-        houses.style.filter = "drop-shadow(0 0 6px #facc15)";
-        statusLabel.textContent = "⚠️ Pasokan Cukup: Hanya Sebagian Gedung yang Mendapat Daya";
-        statusLabel.className = "text-[11px] font-extrabold text-amber-700";
-      } else {
-        hospital.style.filter = "none";
-        school.style.filter = "none";
-        houses.style.filter = "none";
-        statusLabel.textContent = "🚨 Listrik Padam: Pasokan Energi Terlalu Rendah!";
-        statusLabel.className = "text-[11px] font-extrabold text-rose-600";
-      }
+      updateChocoMetrics();
     }
 
-    function resetSimulator() {
-      playSound('click');
-      document.getElementById('slider-sun').value = 50;
-      document.getElementById('slider-wind').value = 50;
-      document.getElementById('slider-water').value = 50;
-      calculateCityPower();
+    function toggleChocoPiece(idx) {
+      playSound('crunch');
+      appState.chocoEaten[idx] = !appState.chocoEaten[idx];
+      renderChocoGrid();
+      addXP(2);
     }
 
-    // GAME 1: PILAH ENERGI KE KERANJANG
-    const initialEnergyItems = [
-      { id: 1, name: "Sinar Matahari", icon: "☀️", type: "terbarukan" },
-      { id: 2, name: "Batu Bara Hitam", icon: "🪨", type: "non-terbarukan" },
-      { id: 3, name: "Hembusan Angin", icon: "💨", type: "terbarukan" },
-      { id: 4, name: "Minyak Bumi / Bensin", icon: "🛢️", type: "non-terbarukan" },
-      { id: 5, name: "Aliran Air Sungai", icon: "🌊", type: "terbarukan" },
-      { id: 6, name: "Gas Alam Bumi", icon: "⛽", type: "non-terbarukan" },
-      { id: 7, name: "Panas Bumi (Geotermal)", icon: "🌋", type: "terbarukan" }
+    function resetChocoBar() {
+      playSound('pop');
+      appState.chocoEaten = appState.chocoEaten.map(() => false);
+      renderChocoGrid();
+    }
+
+    function updateChocoMetrics() {
+      const eaten = appState.chocoEaten.filter(v => v).length;
+      const total = appState.chocoTotal;
+      const left = total - eaten;
+      document.getElementById('choco-display-fraction').textContent = `${eaten} / ${total} Petak (${wordsMap[eaten]} ${denomWordsMap[total]})`;
+      document.getElementById('choco-display-left').textContent = `${left} / ${total} Petak`;
+    }
+
+    // ==========================================
+    // PECAHAN SENILAI
+    // ==========================================
+    function celebrateEquivalence() {
+      playSound('cheer');
+      confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
+      addXP(10);
+    }
+
+    // ==========================================
+    // GAME KASIR KEDAI
+    // ==========================================
+    const orderRounds = [
+      { avatar: "🐰", name: "Kelinci Ruby", denom: 4, target: 2, dialog: "Halo koki! Aku ingin 2/4 loyang pizza pepperoni ya!" },
+      { avatar: "🐻", name: "Beruang Barny", denom: 4, target: 3, dialog: "Perutku lapar sekali, sajikan 3/4 loyang pizza untukku!" },
+      { avatar: "🦊", name: "Rubah Foxy", denom: 3, target: 1, dialog: "Bolehkah aku memesan 1/3 bagian pizza keju lezat?" },
+      { avatar: "🐼", name: "Panda Mumu", denom: 6, target: 4, dialog: "Tolong siapkan 4/6 loyang pizza jagung manis!" },
+      { avatar: "🦁", name: "Singa Leo", denom: 2, target: 1, dialog: "Aku ingin tepat setengah (1/2) loyang pizza istimewa!" }
     ];
 
-    let currentPool = [];
+    function initCustomerGame() {
+      const r = orderRounds[appState.gameIdx];
+      document.getElementById('game-customer-avatar').textContent = r.avatar;
+      document.getElementById('game-customer-name').textContent = `Pelanggan: ${r.name}`;
+      document.getElementById('game-customer-dialog').innerHTML = `"${r.dialog}"`;
+      document.getElementById('game-target-fraction').textContent = `${r.target}/${r.denom}`;
+      document.getElementById('game-order-streak').textContent = `${appState.gameStreak} / 5`;
+      document.getElementById('game-feedback-box').classList.add('hidden');
 
-    function initSortGame() {
-      currentPool = [...initialEnergyItems].sort(() => Math.random() - 0.5);
-      appState.selectedSortCard = null;
-      appState.sortedCount.renewable = 0;
-      appState.sortedCount.nonRenewable = 0;
-      
-      document.getElementById('basket-renewable').innerHTML = "Klik keranjang ini untuk memasukkan kartu pilihanmu!";
-      document.getElementById('basket-nonrenewable').innerHTML = "Klik keranjang ini untuk memasukkan kartu pilihanmu!";
-      document.getElementById('badge-count-renewable').textContent = "0/4";
-      document.getElementById('badge-count-nonrenewable').textContent = "0/3";
-      document.getElementById('sort-feedback').textContent = "Pilihlah salah satu kartu di atas!";
-      renderEnergyPool();
+      appState.gameTargetDenom = r.denom;
+      appState.gameTargetNum = r.target;
+      appState.gameCustomerSlices = new Array(r.denom).fill(false);
+
+      renderGameOrderSvg();
+      updateGamePlateUI();
     }
 
-    function renderEnergyPool() {
-      const container = document.getElementById('energy-pool');
+    function renderGameOrderSvg() {
+      const svg = document.getElementById('game-order-svg');
+      svg.innerHTML = '';
+      const total = appState.gameTargetDenom;
+      const angle = 360 / total;
+
+      for (let i = 0; i < total; i++) {
+        const start = i * angle;
+        const end = (i + 1) * angle;
+        const isSelected = appState.gameCustomerSlices[i];
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.className = "slice-interactive";
+        g.onclick = () => toggleGameSlice(i);
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', createSlicePath(100, 100, 88, start, end));
+        path.setAttribute('fill', isSelected ? '#ea580c' : '#94a3b8');
+        path.setAttribute('stroke', '#475569');
+        path.setAttribute('stroke-width', '2');
+
+        g.appendChild(path);
+
+        if (isSelected) {
+          const midA = ((start + end) / 2) * (Math.PI / 180);
+          const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          dot.setAttribute('cx', 100 + 50 * Math.cos(midA));
+          dot.setAttribute('cy', 100 + 50 * Math.sin(midA));
+          dot.setAttribute('r', '8');
+          dot.setAttribute('fill', '#dc2626');
+          g.appendChild(dot);
+        }
+
+        svg.appendChild(g);
+      }
+    }
+
+    function toggleGameSlice(idx) {
+      playSound('slice');
+      appState.gameCustomerSlices[idx] = !appState.gameCustomerSlices[idx];
+      renderGameOrderSvg();
+      updateGamePlateUI();
+    }
+
+    function updateGamePlateUI() {
+      const active = appState.gameCustomerSlices.filter(v => v).length;
+      const denom = appState.gameTargetDenom;
+
+      document.getElementById('game-order-count-text').textContent = active;
+      document.getElementById('game-current-num').textContent = active;
+      document.getElementById('game-current-denom').textContent = denom;
+
+      const read = active === 0 ? "Belum ada potongan dipilih" : `${wordsMap[active]} ${denomWordsMap[denom]}`;
+      document.getElementById('game-current-read').textContent = read;
+    }
+
+    function submitCustomerOrder() {
+      const active = appState.gameCustomerSlices.filter(v => v).length;
+      const box = document.getElementById('game-feedback-box');
+      box.classList.remove('hidden');
+
+      if (active === appState.gameTargetNum) {
+        playSound('bell');
+        playSound('cheer');
+        addXP(25);
+        appState.gameStreak++;
+        document.getElementById('game-order-streak').textContent = `${appState.gameStreak} / 5`;
+
+        box.className = "p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-400 text-emerald-950 font-bold text-xs sm:text-sm";
+        box.innerHTML = `🎉 <b>Pesanan Sempurna!</b> Pelanggan tersenyum senang menerima <b>${active}/${appState.gameTargetDenom}</b> loyang pizza!`;
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+
+        setTimeout(() => {
+          appState.gameIdx = (appState.gameIdx + 1) % orderRounds.length;
+          initCustomerGame();
+        }, 1500);
+      } else {
+        playSound('wrong');
+        box.className = "p-4 rounded-2xl bg-rose-100 border-2 border-rose-400 text-rose-950 font-bold text-xs sm:text-sm";
+        box.innerHTML = `⚠️ <b>Belum Sesuai!</b> Pesanan meminta <b>${appState.gameTargetNum}/${appState.gameTargetDenom}</b>, tapi di piringmu ada <b>${active}/${appState.gameTargetDenom}</b>. Ayo sesuaikan lagi!`;
+      }
+    }
+
+    // ==========================================
+    // KUIS LISENSI KOKI
+    // ==========================================
+    const quizItems = [
+      {
+        prompt: "Sebuah pizza dipotong menjadi 4 irisan sama besar. Dika memakan 1 irisan. Berapakah nilai pecahan pizza yang dimakan Dika?",
+        visual: `<svg viewBox="0 0 100 100" class="w-24 h-24 transform -rotate-90"><circle cx="50" cy="50" r="42" fill="#cbd5e1" stroke="#475569" stroke-width="2"/><path d="M 50,50 L 92,50 A 42,42 0 0,1 50,92 Z" fill="#ef4444"/><line x1="50" y1="8" x2="50" y2="92" stroke="#334155" stroke-width="2"/><line x1="8" y1="50" x2="92" y2="50" stroke="#334155" stroke-width="2"/></svg>`,
+        choices: ["1/2 (Setengah)", "1/4 (Seperempat)", "3/4 (Tiga Perempat)", "4/1"],
+        correct: 1,
+        note: "Karena pizza dibagi 4 dan dimakan 1 bagian, pecahannya adalah 1/4 (1 pembilang, 4 penyebut)."
+      },
+      {
+        prompt: "Pada lambang pecahan 3/6, angka 3 di posisi atas disebut sebagai...",
+        visual: `<div class="font-heading text-4xl font-black text-rose-600 text-center">3<div class="w-10 h-1 bg-slate-800 mx-auto my-1"></div><span class="text-slate-400 text-3xl">6</span></div>`,
+        choices: ["Penyebut", "Pembilang", "Garis Pembagi", "Pecahan Utuh"],
+        correct: 1,
+        note: "Angka yang berada di posisi atas disebut Pembilang (menunjukkan bagian yang dihitung)."
+      },
+      {
+        prompt: "Pecahan manakah di bawah ini yang SENILAI (sama besarnya) dengan 1/2 loyang?",
+        visual: `<div class="text-4xl text-center">🍕 1/2 = ❓</div>`,
+        choices: ["2/4", "1/3", "3/5", "1/8"],
+        correct: 0,
+        note: "1/2 senilai dengan 2/4 karena dua potong dari empat potong memiliki ukuran luas yang sama persis."
+      },
+      {
+        prompt: "Pecahan 'Dua Pertiga' ditulis dengan lambang bilangan...",
+        visual: `<div class="text-3xl text-center">✍️ 📐 🍕</div>`,
+        choices: ["3/2", "2/3", "2/2", "3/3"],
+        correct: 1,
+        note: "Dua sebagai pembilang di atas, dan pertiga sebagai penyebut 3 di bawah = 2/3."
+      },
+      {
+        prompt: "Di loyang ada 8 potong pizza. Kiko memakan 5 potong. Berapakah pecahan pizza yang MASIH TERSISA di loyang?",
+        visual: `<div class="font-heading text-3xl font-black text-emerald-600 text-center">🍕 ❓/8</div>`,
+        choices: ["5/8", "2/8", "3/8", "8/8"],
+        correct: 2,
+        note: "8 potong dikurangi 5 potong yang dimakan = 3 potong tersisa, sehingga pecahannya adalah 3/8!"
+      }
+    ];
+
+    function loadQuizCard() {
+      const q = quizItems[appState.quizIdx];
+      document.getElementById('quiz-progress-text').textContent = `${appState.quizIdx + 1} / ${quizItems.length}`;
+      document.getElementById('quiz-question-prompt').textContent = q.prompt;
+      document.getElementById('quiz-visual-icon').innerHTML = q.visual;
+
+      const container = document.getElementById('quiz-choices-container');
       container.innerHTML = '';
-      currentPool.forEach(item => {
+      document.getElementById('quiz-eval-feedback').classList.add('hidden');
+      document.getElementById('btn-quiz-next').classList.add('hidden');
+
+      q.choices.forEach((c, idx) => {
         const btn = document.createElement('button');
-        btn.id = `card-item-${item.id}`;
-        btn.onclick = () => selectCardToDrop(item.id);
-        const isSelected = appState.selectedSortCard === item.id;
-        btn.className = `px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm flex items-center gap-2 border-2 transition shadow-sm ${
-          isSelected 
-            ? 'bg-amber-300 border-amber-600 scale-105 shadow-md' 
-            : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
-        }`;
-        btn.innerHTML = `<span class="text-xl">${item.icon}</span> <span>${item.name}</span>`;
+        btn.id = `quiz-choice-${idx}`;
+        btn.onclick = () => chooseAnswer(idx);
+        btn.className = "w-full p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-300 text-slate-800 text-left font-semibold text-xs sm:text-sm transition flex items-center gap-3";
+        btn.innerHTML = `
+          <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-900 font-black flex items-center justify-center text-xs flex-shrink-0">${String.fromCharCode(65 + idx)}</span>
+          <span>${c}</span>
+        `;
         container.appendChild(btn);
       });
     }
 
-    function selectCardToDrop(id) {
-      playSound('click');
-      appState.selectedSortCard = id;
-      renderEnergyPool();
-      const card = currentPool.find(c => c.id === id);
-      document.getElementById('sort-feedback').textContent = `Kamu memilih "${card.name}". Sekarang klik salah satu keranjang di bawah!`;
-    }
+    function chooseAnswer(selected) {
+      const q = quizItems[appState.quizIdx];
+      const isRight = selected === q.correct;
+      const feed = document.getElementById('quiz-eval-feedback');
+      const nextBtn = document.getElementById('btn-quiz-next');
 
-    function dropToBasket(targetBasket) {
-      if (!appState.selectedSortCard) {
-        playSound('wrong');
-        openGeneralModal("Pilih Kartu Dulu!", "Yuk klik salah satu kartu sumber energi di atas sebelum memilih keranjang!", "💡");
-        return;
-      }
-
-      const card = currentPool.find(c => c.id === appState.selectedSortCard);
-      const isCorrect = card.type === targetBasket;
-
-      if (isCorrect) {
-        playSound('success');
-        addPoints(25);
-        // Hapus dari pool
-        currentPool = currentPool.filter(c => c.id !== card.id);
-        appState.selectedSortCard = null;
-
-        // Tambah ke dalam keranjang visual
-        const basketDiv = targetBasket === 'terbarukan' 
-          ? document.getElementById('basket-renewable') 
-          : document.getElementById('basket-nonrenewable');
-
-        if (basketDiv.textContent.includes("Klik keranjang")) {
-          basketDiv.innerHTML = '';
-        }
-
-        const tag = document.createElement('span');
-        tag.className = "inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-xl shadow-xs border text-xs font-bold text-slate-800 animate-bounce";
-        tag.innerHTML = `${card.icon} ${card.name} ✓`;
-        basketDiv.appendChild(tag);
-
-        if (targetBasket === 'terbarukan') appState.sortedCount.renewable++;
-        else appState.sortedCount.nonRenewable++;
-
-        document.getElementById('badge-count-renewable').textContent = `${appState.sortedCount.renewable}/4`;
-        document.getElementById('badge-count-nonrenewable').textContent = `${appState.sortedCount.nonRenewable}/3`;
-
-        document.getElementById('sort-feedback').textContent = `Bagus sekali! "${card.name}" berhasil dimasukkan ke keranjang yang tepat!`;
-        renderEnergyPool();
-
-        // Cek jika sudah selesai semua
-        if (currentPool.length === 0) {
-          confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-          openGeneralModal(
-            "Misi Pemilahan Sukses! 🧺🎉",
-            "Hebat! Kamu telah mengelompokkan semua sumber energi dengan benar. Bumi kita bangga padamu!",
-            "🎖️"
-          );
-        }
-      } else {
-        playSound('wrong');
-        document.getElementById('sort-feedback').textContent = `Ups! "${card.name}" bukan termasuk kategori tersebut. Coba periksa kembali sifat energinya!`;
-      }
-    }
-
-    function resetSortGame() {
-      playSound('click');
-      initSortGame();
-    }
-
-    // GAME 2: KUIS DETEKTIF ENERGI
-    const quizQuestions = [
-      {
-        theme: "Sinar Matahari",
-        question: "Alat apakah yang dipasang di atap rumah untuk mengubah sinar matahari langsung menjadi energi listrik?",
-        options: [
-          "Panel Surya (Fotovoltaik)",
-          "Termometer raksa",
-          "Kipas angin dinding",
-          "Antena parabola"
-        ],
-        correct: 0,
-        explanation: "Panel surya tersusun atas sel fotovoltaik berbahan silikon yang menangkap sinar matahari dan memicu arus listrik DC."
-      },
-      {
-        theme: "Kelebihan Energi Hijau",
-        question: "Mengapa energi angin dan air jauh lebih ramah lingkungan dibandingkan bahan bakar batu bara?",
-        options: [
-          "Karena warnanya lebih cerah",
-          "Karena tidak menghasilkan asap beracun dan gas karbon pembuat polusi",
-          "Karena tidak membutuhkan generator sama sekali",
-          "Karena harganya selalu gratis di toko kelontong"
-        ],
-        correct: 1,
-        explanation: "Pembangkit listrik tenaga angin (PLTB) dan air (PLTA) tidak membakar materi apapun, sehingga 0 emisi gas polusi cerobong!"
-      },
-      {
-        theme: "Geotermal Indonesia",
-        question: "Indonesia memiliki banyak potensi energi Panas Bumi (Geotermal). Dari manakah asal energi tersebut?",
-        options: [
-          "Dari gelombang ombak laut selatan",
-          "Dari uap panas alami di dalam perut bumi dekat gunung berapi",
-          "Dari embun pagi di dedaunan",
-          "Dari gesekan es di kutub utara"
-        ],
-        correct: 1,
-        explanation: "Geotermal memanfaatkan uap panas magma alami dari dalam perut bumi Indonesia yang berada di cincin api (*Ring of Fire*)."
-      },
-      {
-        theme: "Kekurangan Bahan Bakar Fosil",
-        question: "Apa bahaya utama jika manusia terus menerus bergantung pada minyak bumi dan batu bara?",
-        options: [
-          "Cadangannya akan habis dan pembakarannya memicu pemanasan global",
-          "Air laut akan membeku menjadi es",
-          "Matahari akan berhenti bersinar selamanya",
-          "Pohon di hutan akan tumbuh terlalu cepat"
-        ],
-        correct: 0,
-        explanation: "Fosil terbentuk jutaan tahun lalu dan bisa habis (*non-renewable*). Asapnya menghasilkan gas CO2 pemicu krisis iklim."
-      },
-      {
-        theme: "Aksi Penghematan Sehari-hari",
-        question: "Sebagai siswa SD, tindakan manakah yang paling mencerminkan perilaku hemat energi di sekolah?",
-        options: [
-          "Menyalakan semua lampu kelas saat siang hari yang cerah",
-          "Mematikan kipas angin dan proyektor saat kelas sudah selesai dan kosong",
-          "Membiarkan keran air wastafel mengalir terus menerus",
-          "Membuka kulkas berjam-jam tanpa ditutup"
-        ],
-        correct: 1,
-        explanation: "Mematikan alat listrik saat tidak digunakan menghemat daya dan memperpanjang umur cadangan energi bumi!"
-      }
-    ];
-
-    function switchSubGame(type) {
-      playSound('click');
-      const sortBox = document.getElementById('subgame-sort-box');
-      const quizBox = document.getElementById('subgame-quiz-box');
-      const btnSort = document.getElementById('btn-subgame-sort');
-      const btnQuiz = document.getElementById('btn-subgame-quiz');
-
-      if (type === 'sort') {
-        sortBox.classList.remove('hidden');
-        quizBox.classList.add('hidden');
-        btnSort.className = "px-5 py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-md transition flex items-center gap-2";
-        btnQuiz.className = "px-5 py-2.5 rounded-2xl font-bold text-sm bg-white text-slate-700 hover:bg-emerald-100 shadow-sm transition flex items-center gap-2";
-      } else {
-        quizBox.classList.remove('hidden');
-        sortBox.classList.add('hidden');
-        btnQuiz.className = "px-5 py-2.5 rounded-2xl font-bold text-sm bg-indigo-600 text-white shadow-md transition flex items-center gap-2";
-        btnSort.className = "px-5 py-2.5 rounded-2xl font-bold text-sm bg-white text-slate-700 hover:bg-emerald-100 shadow-sm transition flex items-center gap-2";
-        loadQuizCard();
-      }
-    }
-
-    function loadQuizCard() {
-      const q = quizQuestions[appState.quizIndex];
-      document.getElementById('quiz-progress-text').textContent = `${appState.quizIndex + 1} / ${quizQuestions.length}`;
-      document.getElementById('quiz-theme-badge').textContent = `Pertanyaan #${appState.quizIndex + 1} • ${q.theme}`;
-      document.getElementById('quiz-question-title').textContent = q.question;
-      
-      const optContainer = document.getElementById('quiz-options-list');
-      optContainer.innerHTML = '';
-      document.getElementById('quiz-answer-feedback').classList.add('hidden');
-      document.getElementById('btn-next-question').classList.add('hidden');
-
-      q.options.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.id = `q-opt-${idx}`;
-        btn.onclick = () => selectQuizAnswer(idx);
-        btn.className = "w-full p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-indigo-50 hover:border-indigo-300 text-slate-800 text-left font-semibold text-xs sm:text-sm transition flex items-center gap-3";
-        btn.innerHTML = `
-          <span class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-xs flex-shrink-0">${String.fromCharCode(65 + idx)}</span>
-          <span>${opt}</span>
-        `;
-        optContainer.appendChild(btn);
-      });
-    }
-
-    function selectQuizAnswer(chosenIdx) {
-      const q = quizQuestions[appState.quizIndex];
-      const isCorrect = chosenIdx === q.correct;
-      const feedback = document.getElementById('quiz-answer-feedback');
-      const nextBtn = document.getElementById('btn-next-question');
-
-      for (let i = 0; i < q.options.length; i++) {
-        const b = document.getElementById(`q-opt-${i}`);
+      for (let i = 0; i < q.choices.length; i++) {
+        const b = document.getElementById(`quiz-choice-${i}`);
         b.disabled = true;
         if (i === q.correct) {
           b.className = "w-full p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-100 text-emerald-950 font-bold text-xs sm:text-sm flex items-center gap-3";
-        } else if (i === chosenIdx) {
+        } else if (i === selected) {
           b.className = "w-full p-4 rounded-2xl border-2 border-rose-400 bg-rose-100 text-rose-950 font-semibold text-xs sm:text-sm flex items-center gap-3";
         } else {
           b.className = "w-full p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 text-slate-400 text-xs sm:text-sm flex items-center gap-3 opacity-50";
         }
       }
 
-      feedback.classList.remove('hidden');
-      if (isCorrect) {
-        playSound('success');
+      feed.classList.remove('hidden');
+      if (isRight) {
+        playSound('cheer');
         appState.quizScore += 20;
-        addPoints(20);
-        feedback.className = "p-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 text-emerald-950 text-xs sm:text-sm font-semibold";
-        feedback.innerHTML = `🎉 <b>Tepat Sekali!</b> ${q.explanation}`;
+        addXP(20);
+        feed.className = "p-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50 text-emerald-950 text-xs sm:text-sm font-semibold";
+        feed.innerHTML = `🎉 <b>Benar Sekali!</b> ${q.note}`;
       } else {
         playSound('wrong');
-        feedback.className = "p-4 rounded-2xl border-2 border-rose-300 bg-rose-50 text-rose-950 text-xs sm:text-sm font-semibold";
-        feedback.innerHTML = `💡 <b>Belum tepat!</b> Jawaban yang benar adalah yang bertanda hijau. Ingat: ${q.explanation}`;
+        feed.className = "p-4 rounded-2xl border-2 border-rose-300 bg-rose-50 text-rose-950 text-xs sm:text-sm font-semibold";
+        feed.innerHTML = `💡 <b>Belum tepat!</b> Jawaban benar: <b>${q.choices[q.correct]}</b>. Catatan: ${q.note}`;
       }
 
       nextBtn.classList.remove('hidden');
     }
 
     function nextQuizStep() {
-      playSound('click');
-      appState.quizIndex++;
-      if (appState.quizIndex < quizQuestions.length) {
+      playSound('pop');
+      appState.quizIdx++;
+      if (appState.quizIdx < quizItems.length) {
         loadQuizCard();
       } else {
-        document.getElementById('quiz-question-container').classList.add('hidden');
-        document.getElementById('quiz-complete-card').classList.remove('hidden');
-        document.getElementById('quiz-score-display').textContent = appState.quizScore;
+        document.getElementById('quiz-question-box').classList.add('hidden');
+        document.getElementById('quiz-complete-box').classList.remove('hidden');
+        document.getElementById('quiz-final-score').textContent = appState.quizScore;
         if (appState.quizScore >= 80) {
-          confetti({ particleCount: 110, spread: 80, origin: { y: 0.6 } });
+          confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
         }
       }
     }
 
-    function restartQuizGame() {
-      playSound('click');
-      appState.quizIndex = 0;
+    function restartQuiz() {
+      playSound('pop');
+      appState.quizIdx = 0;
       appState.quizScore = 0;
-      document.getElementById('quiz-question-container').classList.remove('hidden');
-      document.getElementById('quiz-complete-card').classList.add('hidden');
+      document.getElementById('quiz-question-box').classList.remove('hidden');
+      document.getElementById('quiz-complete-box').classList.add('hidden');
       loadQuizCard();
     }
 
-    // SECTION 4: LAB MERAKIT KINCIR ANGIN KERTAS
-    function executePinwheelStep(step) {
-      playSound('click');
-      appState.pinwheelStep = step;
-      const head = document.getElementById('pinwheel-head');
-      const badge = document.getElementById('pinwheel-step-badge');
-      const text = document.getElementById('pinwheel-instruction');
-      const fanWind = document.getElementById('virtual-fan-wind');
+    // ==========================================
+    // UNDUH WORKSHEET (LKS)
+    // ==========================================
+    function downloadWorksheetTxt() {
+      playSound('pop');
+      const lks = `================================================================
+LEMBAR KERJA SISWA (LKS) MATEMATIKA KELAS 3 SD
+TOPIK: MENGENAL PECAHAN SEDERHANA (1/2, 1/3, 1/4, 2/4, 3/4)
+KEDAI PECAHAN CHEF KIKO
+================================================================
 
-      // Update badge
-      badge.textContent = `Langkah ${step} dari 4`;
+Nama Siswa  : ............................................
+Kelas       : III (Tiga) - SD ............................
+Hari/Tanggal: ............................................
 
-      if (step === 1) {
-        head.textContent = "📄";
-        head.style.animation = "none";
-        fanWind.classList.add('hidden');
-        text.textContent = "Langkah 1: Gunting diagonal kertas origami dari 4 sudut menuju titik pusat (jangan sampai terputus)!";
-        enableStepButton(2);
-      } else if (step === 2) {
-        head.textContent = "📐";
-        head.style.animation = "none";
-        fanWind.classList.add('hidden');
-        text.textContent = "Langkah 2: Tarik setiap ujung selang-seling sudut kertas ke titik tengah dan tahan dengan jari!";
-        enableStepButton(3);
-      } else if (step === 3) {
-        head.textContent = "📍";
-        head.style.animation = "none";
-        fanWind.classList.add('hidden');
-        text.textContent = "Langkah 3: Tusukkan jarum pentul/push pin di tengah baling-baling lalu tancapkan ke sedotan plastik!";
-        enableStepButton(4);
-      } else if (step === 4) {
-        playSound('wind');
-        head.textContent = "🌀";
-        head.style.animation = "spinTurbine 0.8s linear infinite";
-        fanWind.classList.remove('hidden');
-        text.textContent = "Horee! Baling-baling kincir kertasmu berputar kencang ditiup angin! Energi kinetik angin berhasil diubah jadi energi gerak!";
-        addPoints(30);
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-      }
-    }
+----------------------------------------------------------------
+A. RINGKASAN KONSEP:
+----------------------------------------------------------------
+1. Pecahan dituliskan dalam bentuk a/b.
+   - Angka 'a' di atas disebut PEMBILANG (bagian yang diambil / dimakan).
+   - Angka 'b' di bawah disebut PENYEBUT (seluruh potongan sama besar).
+2. Potongan harus SAMA BESAR agar adil dan sah menjadi pecahan.
+3. Pecahan Senilai: 1/2 memiliki luas yang sama dengan 2/4 dan 4/8.
 
-    function enableStepButton(nextStep) {
-      const btn = document.getElementById(`pw-step-${nextStep}`);
-      if (btn) {
-        btn.disabled = false;
-        btn.classList.remove('opacity-50', 'cursor-not-allowed');
-        btn.classList.add('border-teal-400', 'bg-teal-50');
-      }
-    }
+----------------------------------------------------------------
+B. LATIHAN SOAL:
+----------------------------------------------------------------
+1. Sebuah pizza dibagi menjadi 4 bagian sama besar.
+   Rani memakan 3 bagian. Berapakah pecahan pizza yang dimakan Rani?
+   Jawab: ........ / ........
 
-    function downloadPinwheelWorksheet() {
-      playSound('click');
-      const report = `LEMBAR OBSERVASI PROYEK IPAS SD - ENERGI TERBARUKAN
-Topik : Merancang Mini Kincir Angin Kertas (Pemanfaatan Energi Bayu)
-Nama Siswa : (Tulis Namamu di Sini)
-Kelas      : IV / V / VI SD
-Tanggal    : ${new Date().toLocaleDateString('id-ID')}
+2. Tuliskan nama pecahan berikut dengan kata-kata:
+   a. 1/2 = ....................................................
+   b. 1/4 = ....................................................
+   c. 3/8 = ....................................................
 
-==================================================
-A. ALAT DAN BAHAN:
-1. Kertas origami persegi (15x15 cm)
-2. Jarum pentul / push pin
-3. Sedotan ramah lingkungan / sumpit kayu
-4. Gunting tumpul
+3. Di atas loyang ada semangka yang dipotong menjadi 6 bagian.
+   Boni mengambil 2 bagian. Berapakah pecahan sisa semangka di loyang?
+   Jawab: ........ / ........
 
-B. HASIL OBSERVASI:
-1. Apa yang terjadi saat kincir angin ditiup dari arah depan?
-   Jawab: Kincir berputar kencang karena adanya gaya dorong dari udara yang mengalir (energi kinetik).
+4. Gambarlah sebuah lingkaran dan bagilah menjadi 4 bagian sama besar!
+   Arsirlah 2 bagian untuk membuktikan pecahan 2/4 sama dengan 1/2!
+   [ Kolom Gambar ]:
 
-2. Apakah kincir angin dapat berputar di ruangan tertutup tanpa angin?
-   Jawab: Tidak, kincir memerlukan udara bergerak (angin) untuk memutar bilah baling-balingnya.
 
-3. Kesimpulan Sains:
-   "Energi angin merupakan salah satu energi terbarukan yang tidak akan habis dan tidak menghasilkan polusi gas berbahaya. Energi angin dapat dimanfaatkan untuk memutar turbin generator penghasil listrik bagi kehidupan manusia."
 
-Nilai / Catatan Guru:
-__________________________________________________`;
 
-      const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+----------------------------------------------------------------
+C. CATATAN & PARAF:
+----------------------------------------------------------------
+Nilai Siswa: .............      Paraf Guru / Orang Tua: .............
+`;
+
+      const blob = new Blob([lks], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Worksheet_Sains_Kincir_Angin_${Date.now()}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `LKS_Matematika_Pecahan_Kelas3_${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
-    // Inisialisasi saat window dibuka
+    // Inisialisasi awal saat window dimuat
     window.onload = function() {
-      lucide.createIcons();
-      initSortGame();
-      calculateCityPower();
+      renderFairLabVisual();
+      renderFoodVisuals();
+      renderInteractivePizza();
+      updatePizzaMetrics();
+      renderChocoGrid();
+      initCustomerGame();
+      loadQuizCard();
     };
   </script>
 
