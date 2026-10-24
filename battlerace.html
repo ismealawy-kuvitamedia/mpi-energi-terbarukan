@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Stadium Derby - Broadcast Camera View</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-3 select-none overflow-hidden font-sans">
+
+    <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl p-4 h-[94vh]">
+        
+        <!-- Sidebar Kontrol & Input Peserta -->
+        <div class="flex flex-col gap-3 bg-slate-950/90 p-4 rounded-2xl border border-slate-800 h-full justify-between">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">BROADCAST 3D</span>
+                    <span class="text-xs text-slate-400">Derby Cup</span>
+                </div>
+                <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">
+                    STADIUM DERBY
+                </h1>
+                <p class="text-[11px] text-slate-400 mt-1">Sudut pandang kamera siaran tribun stadion sepak bola.</p>
+            </div>
+
+            <div class="flex-1 flex flex-col my-2">
+                <label class="text-xs font-semibold text-slate-300 mb-1 flex justify-between">
+                    <span>Daftar Murid:</span>
+                    <span id="name-count" class="text-amber-400 font-mono">6 Peserta</span>
+                </label>
+                <textarea id="students-input" class="w-full flex-1 bg-slate-900 border border-slate-700/80 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500 font-mono resize-none leading-relaxed">Ahmad Pratama
+Budi Santoso
+Citra Lestari
+Doni Saputra
+Eka Ramadhani
+Fajar Hidayat</textarea>
+            </div>
+
+            <div class="flex gap-2">
+                <button id="btn-reload" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl font-semibold text-xs transition">
+                    ðŸ”„ Reset Posisi
+                </button>
+            </div>
+
+            <button id="btn-start-race" class="w-full py-4 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-orange-500/20 active:scale-95 transition tracking-wider">
+                ðŸ MULAI PERTANDINGAN!
+            </button>
+        </div>
+
+        <!-- Wadah Arena 3D Stadium View -->
+        <div class="lg:col-span-3 relative w-full h-full bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
+            
+            <!-- Three.js Canvas -->
+            <div id="stadium-3d" class="w-full h-full absolute inset-0"></div>
+
+            <!-- TV Broadcast Overlay Info (Mirip Siaran Olahraga TV) -->
+            <div class="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-none">
+                <div class="bg-slate-950/85 backdrop-blur-md border border-slate-700/80 rounded-xl p-3 shadow-xl min-w-[210px]">
+                    <div class="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-1.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                            LIVE DERBY
+                        </span>
+                        <span id="race-progress-text" class="text-slate-400 font-mono">0%</span>
+                    </div>
+                    <!-- Live Standings Top 5 -->
+                    <div id="leaderboard-list" class="space-y-1 text-xs font-medium"></div>
+                </div>
+            </div>
+
+            <!-- Kamera Indicator Tag -->
+            <div class="absolute bottom-4 left-4 z-10 bg-black/60 backdrop-blur-sm border border-white/10 rounded-lg px-2.5 py-1 text-[10px] text-slate-300 font-mono pointer-events-none">
+                CAM 1: MAIN TRIBUNE SIDELINE (WIDE)
+            </div>
+
+            <!-- Modal Pemenang Garis Finis -->
+            <div id="winner-modal" class="absolute inset-0 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-6 z-30 opacity-0 pointer-events-none transition-all duration-500 scale-90">
+                <div class="text-5xl mb-2 animate-bounce">ðŸ†</div>
+                <div class="text-amber-400 font-bold uppercase tracking-widest text-xs mb-1">Juara 1 Derby Kelas</div>
+                <h2 id="winner-name" class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-white text-center mb-6 drop-shadow-lg">
+                    -
+                </h2>
+                <button id="btn-reset-race" class="px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl shadow-lg transition tracking-wider">
+                    Balapan Ulang
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('stadium-3d');
+        const studentsInput = document.getElementById('students-input');
+        const nameCountEl = document.getElementById('name-count');
+        const btnStart = document.getElementById('btn-start-race');
+        const btnReload = document.getElementById('btn-reload');
+        const leaderboardList = document.getElementById('leaderboard-list');
+        const winnerModal = document.getElementById('winner-modal');
+        const winnerNameEl = document.getElementById('winner-name');
+        const btnResetRace = document.getElementById('btn-reset-race');
+        const raceProgressText = document.getElementById('race-progress-text');
+
+        const jockeyColors = [
+            0xef4444, 0x3b82f6, 0x10b981, 0xf59e0b, 
+            0x8b5cf6, 0xec4899, 0x06b6d4, 0x84cc16,
+            0xd97706, 0x6366f1, 0x14b8a6, 0xf43f5e
+        ];
+
+        let students = [];
+        let horseRiders = [];
+        let isRacing = false;
+        
+        // Jarak Lintasan Balap (Sumbu Z: Start di Z = 10, Finis di Z = -160)
+        const START_Z = 12;
+        const FINISH_Z = -155;
+        const TOTAL_DISTANCE = Math.abs(START_Z - FINISH_Z);
+        const LANE_WIDTH = 4.4;
+
+        // ==========================================
+        // AUDIO SYNTHESIZER (Web Audio API)
+        // ==========================================
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function playGallopSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(115, now);
+                osc.frequency.exponentialRampToValueAtTime(45, now + 0.05);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } catch(e) {}
+        }
+
+        function playWinFanfare() {
+            try {
+                const ctx = getAudioContext();
+                const melody = [392, 523, 659, 784, 1046];
+                melody.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const time = ctx.currentTime + (idx * 0.12);
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, time);
+
+                    gain.gain.setValueAtTime(0.2, time);
+                    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(time);
+                    osc.stop(time + 0.4);
+                });
+            } catch(e) {}
+        }
+
+        // ==========================================
+        // THREE.JS SETUP & STADIUM SCENE
+        // ==========================================
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a1120);
+        scene.fog = new THREE.FogExp2(0x0a1120, 0.0035);
+
+        // Kamera Siaran Sepak Bola Telephoto (FOV 38 agar sudut perspektif tidak distorsi)
+        const camera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 1, 600);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // Pencahayaan Realistis Stadion (Floodlights)
+        const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.65);
+        scene.add(ambientLight);
+
+        const stadiumLight1 = new THREE.DirectionalLight(0xfffbeb, 1.3);
+        stadiumLight1.position.set(70, 90, -70);
+        stadiumLight1.castShadow = true;
+        stadiumLight1.shadow.mapSize.width = 2048;
+        stadiumLight1.shadow.mapSize.height = 2048;
+        stadiumLight1.shadow.camera.near = 10;
+        stadiumLight1.shadow.camera.far = 300;
+        stadiumLight1.shadow.camera.left = -90;
+        stadiumLight1.shadow.camera.right = 90;
+        stadiumLight1.shadow.camera.top = 90;
+        stadiumLight1.shadow.camera.bottom = -90;
+        scene.add(stadiumLight1);
+
+        const stadiumLight2 = new THREE.DirectionalLight(0x93c5fd, 0.6);
+        stadiumLight2.position.set(-70, 70, -70);
+        scene.add(stadiumLight2);
+
+        // Tekstur Rumput Bergaris Stadion Sepak Bola
+        function generateTurfTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = "#1e3a1f";
+            ctx.fillRect(0, 0, 512, 512);
+
+            ctx.fillStyle = "#274e28";
+            for(let y = 0; y < 512; y += 64) {
+                ctx.fillRect(0, y, 512, 32);
+            }
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(12, 16);
+            return tex;
+        }
+
+        const stadiumFieldGeo = new THREE.PlaneGeometry(350, 400);
+        const stadiumFieldMat = new THREE.MeshStandardMaterial({ 
+            map: generateTurfTexture(), 
+            roughness: 0.85 
+        });
+        const stadiumField = new THREE.Mesh(stadiumFieldGeo, stadiumFieldMat);
+        stadiumField.rotation.x = -Math.PI / 2;
+        stadiumField.position.set(0, -0.05, -70);
+        stadiumField.receiveShadow = true;
+        scene.add(stadiumField);
+
+        // Tribun Stadion Penonton di Seberang (Tribun Bertingkat)
+        function createGrandstand(xPos) {
+            const grandstandGroup = new THREE.Group();
+            const tiers = 6;
+            for(let i=0; i<tiers; i++) {
+                const tierGeo = new THREE.BoxGeometry(10, 2.5 * (i+1), 220);
+                const tierMat = new THREE.MeshStandardMaterial({ 
+                    color: i % 2 === 0 ? 0x1e293b : 0x334155, 
+                    roughness: 0.9 
+                });
+                const tierMesh = new THREE.Mesh(tierGeo, tierMat);
+                tierMesh.position.set(xPos - (i * 8), (2.5 * (i+1))/2, -70);
+                tierMesh.castShadow = true;
+                tierMesh.receiveShadow = true;
+                grandstandGroup.add(tierMesh);
+            }
+            return grandstandGroup;
+        }
+        scene.add(createGrandstand(-45)); // Tribun di sisi kiri lintasan
+
+        // Menara Lampu Sorot Stadion (Floodlight Tower)
+        function createFloodlightTower(x, z) {
+            const tower = new THREE.Group();
+            const poleGeo = new THREE.CylinderGeometry(0.6, 0.9, 45, 12);
+            const poleMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6 });
+            const pole = new THREE.Mesh(poleGeo, poleMat);
+            pole.position.set(x, 22.5, z);
+            pole.castShadow = true;
+            tower.add(pole);
+
+            // Kotak Lampu Atas
+            const headGeo = new THREE.BoxGeometry(6, 4, 1.5);
+            const headMat = new THREE.MeshBasicMaterial({ color: 0xffedd5 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.set(x, 44, z);
+            head.rotation.y = x > 0 ? -Math.PI / 4 : Math.PI / 4;
+            tower.add(head);
+
+            return tower;
+        }
+        scene.add(createFloodlightTower(-42, 15));
+        scene.add(createFloodlightTower(-42, -165));
+        scene.add(createFloodlightTower(42, 15));
+        scene.add(createFloodlightTower(42, -165));
+
+        // Label Nama Murid 3D Mengambang
+        function createRiderNameBadge(name, colorHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 140;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = "rgba(15, 23, 42, 0.92)";
+            ctx.roundRect(10, 10, 492, 120, 26);
+            ctx.fill();
+
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = colorHex;
+            ctx.stroke();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 46px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(name, 256, 70);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const badgeMat = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+            const sprite = new THREE.Sprite(badgeMat);
+            sprite.scale.set(5.5, 1.5, 1);
+            sprite.position.set(0, 4.3, 0.4);
+            return sprite;
+        }
+
+        // Model Kuda yang Lebih Rinci & Proporsional
+        function createDetailedHorse(jockeyColor, name) {
+            const group = new THREE.Group();
+
+            const coatMat = new THREE.MeshStandardMaterial({ color: 0x5c2e0b, roughness: 0.6 });
+            const maneMat = new THREE.MeshStandardMaterial({ color: 0x1f140a, roughness: 0.9 });
+
+            // Bodi Kuda
+            const bodyGeo = new THREE.BoxGeometry(1.4, 1.4, 3.2);
+            const body = new THREE.Mesh(bodyGeo, coatMat);
+            body.position.y = 1.9;
+            body.castShadow = true;
+            group.add(body);
+
+            // Leher Kuda
+            const neckGeo = new THREE.BoxGeometry(1.0, 1.8, 1.3);
+            neckGeo.rotateX(-Math.PI / 4.8);
+            const neck = new THREE.Mesh(neckGeo, coatMat);
+            neck.position.set(0, 2.8, -1.3);
+            neck.castShadow = true;
+            group.add(neck);
+
+            // Kepala Kuda
+            const headGeo = new THREE.BoxGeometry(0.85, 0.9, 1.4);
+            headGeo.rotateX(Math.PI / 14);
+            const head = new THREE.Mesh(headGeo, coatMat);
+            head.position.set(0, 3.3, -2.1);
+            head.castShadow = true;
+            group.add(head);
+
+            // Surai Rambut & Ekor
+            const tailGeo = new THREE.BoxGeometry(0.4, 1.8, 0.4);
+            tailGeo.rotateX(Math.PI / 6);
+            const tail = new THREE.Mesh(tailGeo, maneMat);
+            tail.position.set(0, 1.8, 1.9);
+            group.add(tail);
+
+            // Joki Atletik
+            const jockeyMat = new THREE.MeshStandardMaterial({ color: jockeyColor, roughness: 0.4 });
+            const jockeyBody = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.3), jockeyMat);
+            jockeyBody.position.set(0, 2.9, 0.1);
+            jockeyBody.castShadow = true;
+            group.add(jockeyBody);
+
+            const helmetMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
+            const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 16), helmetMat);
+            helmet.position.set(0, 3.7, -0.4);
+            group.add(helmet);
+
+            // Kaki Kuda Berengsel
+            const legGeo = new THREE.BoxGeometry(0.38, 1.7, 0.4);
+            const legPositions = [
+                [-0.5, 0.85, -1.0], [0.5, 0.85, -1.0],
+                [-0.5, 0.85, 1.0],  [0.5, 0.85, 1.0]
+            ];
+            const legs = [];
+            legPositions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeo, coatMat);
+                leg.position.set(...pos);
+                leg.castShadow = true;
+                group.add(leg);
+                legs.push(leg);
+            });
+
+            // Badge Nama Mengambang
+            const badge = createRiderNameBadge(name, '#' + jockeyColor.toString(16).padStart(6, '0'));
+            group.add(badge);
+
+            return { group, legs };
+        }
+
+        // Jalur Pacuan Pasir & Gerbang Stadion
+        let trackMeshes = [];
+        function buildStadiumTrack() {
+            trackMeshes.forEach(m => scene.remove(m));
+            trackMeshes = [];
+
+            const total = students.length;
+            const totalWidth = total * LANE_WIDTH;
+            const startX = -((total - 1) * LANE_WIDTH) / 2;
+
+            // Jalur Lintasan Tanah Pacuan (Dirt Track)
+            const dirtGeo = new THREE.BoxGeometry(totalWidth + 3, 0.15, TOTAL_DISTANCE + 40);
+            const dirtMat = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.95 });
+            const dirt = new THREE.Mesh(dirtGeo, dirtMat);
+            dirt.position.set(0, 0, (START_Z + FINISH_Z) / 2);
+            dirt.receiveShadow = true;
+            scene.add(dirt);
+            trackMeshes.push(dirt);
+
+            // Pagar Kayu Putih Pemisah Jalur
+            for (let i = 0; i <= total; i++) {
+                const railX = startX - LANE_WIDTH / 2 + (i * LANE_WIDTH);
+                const railGeo = new THREE.BoxGeometry(0.2, 0.4, TOTAL_DISTANCE + 40);
+                const railMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
+                const rail = new THREE.Mesh(railGeo, railMat);
+                rail.position.set(railX, 0.2, (START_Z + FINISH_Z) / 2);
+                rail.castShadow = true;
+                scene.add(rail);
+                trackMeshes.push(rail);
+            }
+
+            // Garis Awal (Start Line)
+            const startLineGeo = new THREE.BoxGeometry(totalWidth + 2, 0.18, 1.2);
+            const startLineMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            const startLine = new THREE.Mesh(startLineGeo, startLineMat);
+            startLine.position.set(0, 0.1, START_Z);
+            scene.add(startLine);
+            trackMeshes.push(startLine);
+
+            // Gapura Megah Garis Finis (Stadium Finish Line)
+            const finishArchGeo = new THREE.BoxGeometry(totalWidth + 6, 2.0, 1.2);
+            const finishArchMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.6 });
+            const finishArch = new THREE.Mesh(finishArchGeo, finishArchMat);
+            finishArch.position.set(0, 8.5, FINISH_Z);
+            finishArch.castShadow = true;
+            scene.add(finishArch);
+            trackMeshes.push(finishArch);
+
+            // Spanduk Finis
+            const bCanvas = document.createElement('canvas');
+            bCanvas.width = 1024;
+            bCanvas.height = 128;
+            const bCtx = bCanvas.getContext('2d');
+            bCtx.fillStyle = '#f59e0b';
+            bCtx.fillRect(0,0,1024,128);
+            bCtx.fillStyle = '#0f172a';
+            bCtx.font = 'black 64px sans-serif';
+            bCtx.textAlign = 'center';
+            bCtx.fillText('ðŸ FINISH LINE ðŸ', 512, 85);
+
+            const bTex = new THREE.CanvasTexture(bCanvas);
+            const bMat = new THREE.MeshBasicMaterial({ map: bTex });
+            const banner = new THREE.Mesh(new THREE.PlaneGeometry(totalWidth + 6, 2.4), bMat);
+            banner.position.set(0, 6.4, FINISH_Z);
+            scene.add(banner);
+            trackMeshes.push(banner);
+        }
+
+        // Setup Peserta & Posisi Awal
+        function setupRaceRoster() {
+            horseRiders.forEach(h => scene.remove(h.mesh.group));
+            horseRiders = [];
+
+            const total = students.length;
+            const startX = -((total - 1) * LANE_WIDTH) / 2;
+
+            students.forEach((name, idx) => {
+                const color = jockeyColors[idx % jockeyColors.length];
+                const horseObj = createDetailedHorse(color, name);
+                const posX = startX + (idx * LANE_WIDTH);
+
+                horseObj.group.position.set(posX, 0, START_Z);
+                scene.add(horseObj.group);
+
+                horseRiders.push({
+                    name: name,
+                    mesh: horseObj,
+                    x: posX,
+                    z: START_Z,
+                    baseSpeed: 0.38 + Math.random() * 0.08,
+                    currentSpeed: 0.38,
+                    boostTime: 0,
+                    legCycle: Math.random() * 10,
+                    finished: false
+                });
+            });
+
+            buildStadiumTrack();
+            updateLeaderboardUI();
+            setBroadcastCamera();
+        }
+
+        function parseStudentList() {
+            const raw = studentsInput.value;
+            students = raw.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
+            if (students.length === 0) students = ["Murid 1", "Murid 2"];
+            nameCountEl.innerText = `${students.length} Peserta`;
+            setupRaceRoster();
+        }
+
+        // ==========================================
+        // SUDUT KAMERA SIARAN TRIBUN STADION (FOOTBALL STYLE)
+        // ==========================================
+        function setBroadcastCamera() {
+            // Posisi kamera tinggi di samping tribun stadion
+            // Menatap luas seluruh lintasan pacuan dari start (kanan) hingga finis (kiri)
+            camera.position.set(70, 48, -70);
+            camera.lookAt(0, 2, -70);
+        }
+
+        let lastGallopStep = 0;
+
+        function updateRacePhysics() {
+            let someoneFinished = false;
+            let sumZ = 0;
+
+            horseRiders.forEach(rider => {
+                if (rider.finished) return;
+
+                rider.boostTime -= 0.016;
+                if (rider.boostTime <= 0) {
+                    rider.currentSpeed = rider.baseSpeed + (Math.random() * 0.38 - 0.12);
+                    rider.boostTime = Math.random() * 1.6 + 0.7;
+                }
+
+                rider.z -= rider.currentSpeed;
+                rider.mesh.group.position.z = rider.z;
+
+                // Animasi Ayunan Kaki
+                rider.legCycle += rider.currentSpeed * 1.5;
+                const swing = Math.sin(rider.legCycle) * 0.6;
+                rider.mesh.legs[0].rotation.x = swing;
+                rider.mesh.legs[1].rotation.x = -swing;
+                rider.mesh.legs[2].rotation.x = -swing;
+                rider.mesh.legs[3].rotation.x = swing;
+
+                rider.mesh.group.position.y = Math.abs(Math.sin(rider.legCycle)) * 0.28;
+
+                sumZ += rider.z;
+
+                if (rider.z <= FINISH_Z) {
+                    rider.finished = true;
+                    someoneFinished = true;
+                }
+            });
+
+            // Efek Suara Hentakan Kaki
+            if (Date.now() - lastGallopStep > 200) {
+                playGallopSound();
+                lastGallopStep = Date.now();
+            }
+
+            // Tracking Halus Kamera Tribun Mengikuti Rombongan Kuda
+            const avgZ = sumZ / horseRiders.length;
+            
+            // Kamera perlahan bergeser (panning) dari Z: -50 ke arah garis finis Z: -120
+            camera.position.x = 65;
+            camera.position.y = 44;
+            camera.position.z = -55 + (avgZ * 0.45);
+            camera.lookAt(0, 2, avgZ - 10);
+
+            // Progress Persentase Lari
+            const currentDistCovered = Math.abs(START_Z - avgZ);
+            const progress = Math.min(100, Math.round((currentDistCovered / TOTAL_DISTANCE) * 100));
+            raceProgressText.innerText = progress + '%';
+
+            // Peringkat Realtime
+            horseRiders.sort((a, b) => a.z - b.z);
+            updateLeaderboardUI();
+
+            if (someoneFinished) {
+                endRace(horseRiders[0]);
+            }
+        }
+
+        function updateLeaderboardUI() {
+            leaderboardList.innerHTML = '';
+            horseRiders.slice(0, 5).forEach((h, i) => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center text-slate-300";
+                const remaining = Math.max(0, Math.round(Math.abs(h.z - FINISH_Z)));
+                item.innerHTML = `<span>#${i+1} ${h.name}</span><span class="text-[10px] text-amber-400 font-mono">${remaining}m</span>`;
+                leaderboardList.appendChild(item);
+            });
+        }
+
+        function endRace(winner) {
+            isRacing = false;
+            winnerNameEl.innerText = winner.name;
+            winnerModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
+            winnerModal.classList.add('opacity-100', 'scale-100');
+
+            playWinFanfare();
+            confetti({
+                particleCount: 160,
+                spread: 100,
+                origin: { y: 0.6 }
+            });
+        }
+
+        btnStart.addEventListener('click', () => {
+            if (isRacing) return;
+            getAudioContext();
+            isRacing = true;
+            btnStart.disabled = true;
+            btnStart.classList.add('opacity-50');
+        });
+
+        btnReload.addEventListener('click', () => {
+            isRacing = false;
+            btnStart.disabled = false;
+            btnStart.classList.remove('opacity-50');
+            parseStudentList();
+        });
+
+        btnResetRace.addEventListener('click', () => {
+            winnerModal.classList.add('opacity-0', 'pointer-events-none', 'scale-90');
+            winnerModal.classList.remove('opacity-100', 'scale-100');
+            btnStart.disabled = false;
+            btnStart.classList.remove('opacity-50');
+            setupRaceRoster();
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isRacing) {
+                updateRacePhysics();
+            } else {
+                setBroadcastCamera();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        });
+
+        parseStudentList();
+        animate();
+    </script>
+</body>
+</html>
